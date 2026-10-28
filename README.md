@@ -1,8 +1,10 @@
+![Sekiro Seamless Co-op](media/banner.jpg)
+
 # Sekiro Seamless Co-op
 
 Seamless co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring Seamless Co-op mod but for Sekiro. You and your friends (2-6 players) play in the same world, fight the same enemies and bosses, and the session doesn't die when someone dies, warps or hits a loading screen.
 
-![two players at Fountainhead](media/overlook.jpg)
+![two players at the Fountainhead Palace overlook](media/overlook.jpg)
 
 **Download:** [Nexus Mods](https://www.nexusmods.com/sekiro/mods/2944) or [GitHub Releases](https://github.com/Tihvert/sekiro-coop/releases).
 
