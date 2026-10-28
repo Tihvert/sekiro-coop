@@ -59,7 +59,7 @@ Enemies and bosses get more HP and posture in co-op, and there's an optional dea
 
 [size=4][b]What's broken / not done[/b][/size]
 [list]
-[*] Resurrect sometimes isn't offered when it should be ((there's a fix, not tested in game yet)).
+[*] Resurrect sometimes isn't offered when it should be (there's a fix, not tested in game yet).
 [*] Spectate sometimes goes black.
 [*] Enemies or bosses can desync now and then.
 [*] Lag / stutter spikes, mostly on the host.
