@@ -137,7 +137,7 @@ The `.cmd` files assume the default VS 2022 Build Tools path, edit them if yours
 
 ## Support
 
-If you like it and want to throw a coffee my way: [ko-fi.com/tihvert](https://ko-fi.com/tihvert) (card, PayPal, Apple/Google Pay). Totally optional.
+If you like it and want to throw a coffee my way: **[tihvert.xyz/donate](https://tihvert.xyz/donate/)** has everything in one place. Or straight to [Ko-fi](https://ko-fi.com/tihvert) (card, PayPal, Apple/Google Pay). Totally optional.
 
 Crypto works too:
 

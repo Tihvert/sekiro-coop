@@ -22,7 +22,7 @@ I already beat the game so my motivation to keep building this dropped a lot. I 
 Full honesty: this was made with a LOT of help from AI (mostly Claude). I can read code a bit but I didn't write most of it by hand. My part was the idea, testing it in game over and over, reading logs and telling the AI what's broken.
 
 [b]GitHub (source, full readme, bug reports):[/b] [url=https://github.com/Tihvert/sekiro-coop]github.com/Tihvert/sekiro-coop[/url]
-If you're enjoying this and want to support me, you can do it on [url=https://ko-fi.com/tihvert]Ko-fi[/url] (card, PayPal, Apple/Google Pay). Totally optional.
+If you're enjoying this and want to support me: [url=https://tihvert.xyz/donate/]tihvert.xyz/donate[/url], or straight to [url=https://ko-fi.com/tihvert]Ko-fi[/url] (card, PayPal, Apple/Google Pay). Totally optional.
 Crypto: [b]BTC[/b] bc1qlytmy276zcsqw8dw2u43ywh7nuaf7qhufjrrh3 / [b]LTC[/b] LNgsoAL6tZr7NJBTshy15ucCzE65r6uWHp (LTC is cheapest for small amounts)
 
 
