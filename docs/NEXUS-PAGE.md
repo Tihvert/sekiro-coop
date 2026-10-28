@@ -1,6 +1,6 @@
 # Nexus Mods page (copy-paste)
 
-Replace `https://github.com/Tihvert/sekiro-coop` and `https://ko-fi.com/tihvert` before posting. Category: Gameplay (or Multiplayer). Upload `sekiro-seamless-coop-v8.62.zip` as the main file, the 4 pics from `media/` as images (the temple one as the main image).
+Repo and Ko-fi links are already filled in. Category: Gameplay (or Multiplayer). Upload `sekiro-seamless-coop-v8.62.zip` as the main file, the 4 pics from `media/` as images (the temple one as the main image).
 
 Permissions tab: assets free to use / modify / convert as long as credited, open source (MIT), donation points on if you want.
 
