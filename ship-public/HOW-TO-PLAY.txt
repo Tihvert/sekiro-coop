@@ -2,7 +2,7 @@ SEKIRO SEAMLESS CO-OP - quick guide
 ===================================
 
 Beta, still buggy. Back up your saves before playing.
-Full readme, known bugs and source: <REPO_URL>
+Full readme, known bugs and source: https://github.com/Tihvert/sekiro-coop
 
 YOU NEED
 - Sekiro on Steam, version 1.06 (normal, unmodded)

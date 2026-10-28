@@ -1,6 +1,6 @@
 # Nexus Mods page (copy-paste)
 
-Replace `<REPO_URL>` and `<KOFI_LINK>` before posting. Category: Gameplay (or Multiplayer). Upload `sekiro-seamless-coop-v8.62.zip` as the main file, the 4 pics from `media/` as images (the temple one as the main image).
+Replace `https://github.com/Tihvert/sekiro-coop` and `<KOFI_LINK>` before posting. Category: Gameplay (or Multiplayer). Upload `sekiro-seamless-coop-v8.62.zip` as the main file, the 4 pics from `media/` as images (the temple one as the main image).
 
 Permissions tab: assets free to use / modify / convert as long as credited, open source (MIT), donation points on if you want.
 
@@ -26,7 +26,7 @@ I already beat the game so my motivation to keep building this dropped a lot. I 
 
 Full honesty: this was made with a LOT of help from AI (mostly Claude). I can read code a bit but I didn't write most of it by hand. My part was the idea, testing it in game over and over, reading logs and telling the AI what's broken.
 
-GitHub (source, full readme, bug reports): [url=<REPO_URL>]<REPO_URL>[/url]
+GitHub (source, full readme, bug reports): [url=https://github.com/Tihvert/sekiro-coop]https://github.com/Tihvert/sekiro-coop[/url]
 
 [size=4][b]What works[/b][/size]
 [list]
