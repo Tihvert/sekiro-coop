@@ -135,7 +135,7 @@ The `.cmd` files assume the default VS 2022 Build Tools path, edit them if yours
 
 ## Support
 
-If you like it and want to throw a coffee my way: <KOFI_LINK>. Totally optional.
+If you like it and want to throw a coffee my way: https://ko-fi.com/tihvert. Totally optional.
 
 ## License
 

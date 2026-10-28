@@ -1,6 +1,6 @@
 # Nexus Mods page (copy-paste)
 
-Replace `https://github.com/Tihvert/sekiro-coop` and `<KOFI_LINK>` before posting. Category: Gameplay (or Multiplayer). Upload `sekiro-seamless-coop-v8.62.zip` as the main file, the 4 pics from `media/` as images (the temple one as the main image).
+Replace `https://github.com/Tihvert/sekiro-coop` and `https://ko-fi.com/tihvert` before posting. Category: Gameplay (or Multiplayer). Upload `sekiro-seamless-coop-v8.62.zip` as the main file, the 4 pics from `media/` as images (the temple one as the main image).
 
 Permissions tab: assets free to use / modify / convert as long as credited, open source (MIT), donation points on if you want.
 
@@ -95,7 +95,7 @@ Log is at %LOCALAPPDATA%\sekiro-coop\log.txt. Press F11 (or Back/Share on a pad)
 [/list]
 
 [size=4][b]Support[/b][/size]
-If you like it and want to throw a coffee my way: [url=<KOFI_LINK>]Ko-fi[/url]. Totally optional.
+If you like it and want to throw a coffee my way: [url=https://ko-fi.com/tihvert]Ko-fi[/url]. Totally optional.
 
 Unofficial fan mod, not affiliated with FromSoftware, Activision or Valve. Doesn't touch the official online mode. Use at your own risk.
 ```
