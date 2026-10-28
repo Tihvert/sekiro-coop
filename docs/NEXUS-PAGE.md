@@ -148,7 +148,7 @@ A) Maybe. No promises. That's why the source is out there.
 
 [size=5][b]Special thanks[/b][/size]
 [list]
-[*] [b]naamanorsunvitulla[/b] (same name on Discord), my co-op buddy. Played through all of it with me, tested every broken build and sent a ton of logs. This wouldn't exist without them.
+[*] [b]naamanorsunvitulla[/b], my co-op buddy. Played through all of it with me, tested every broken build and sent a ton of logs. This wouldn't exist without them.
 [*] vswarte for fromsoftware-rs (the sekiro crate)
 [*] Gary Tierney and contributors for me3
 [*] veeenu for hudhook

@@ -128,7 +128,7 @@ The `.cmd` files assume the default VS 2022 Build Tools path, edit them if yours
 
 ## Credits
 
-- **naamanorsunvitulla** (same name on Discord). My co-op buddy, played through all of it with me, tested every broken build and sent a ton of logs. This wouldn't exist without them.
+- **naamanorsunvitulla**. My co-op buddy, played through all of it with me, tested every broken build and sent a ton of logs. This wouldn't exist without them.
 - [fromsoftware-rs](https://github.com/vswarte/eldenring-rs) by vswarte, the `sekiro` crate in `vendor/sekiro`.
 - [me3](https://github.com/garyttierney/me3) by Gary Tierney and contributors, the mod loader.
 - [hudhook](https://github.com/veeenu/hudhook) by veeenu, for the in-game overlay.
