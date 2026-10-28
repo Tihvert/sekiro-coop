@@ -1,5 +1,5 @@
-SEKIRO SEAMLESS CO-OP - quick guide
-===================================
+SEKIRO SEAMLESS CO-OP 1.0 beta - quick guide
+===========================================
 
 Beta, still buggy. Back up your saves before playing.
 Full readme, known bugs and source: https://github.com/Tihvert/sekiro-coop

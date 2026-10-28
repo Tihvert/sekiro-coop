@@ -31,18 +31,18 @@ Also, full honesty: this was made with a LOT of help from AI (mostly Claude). I 
 
 ## What's broken / not done
 
-- Resurrect sometimes isn't offered when it should be. Fixed in 8.61 but not tested in game.
+- Resurrect sometimes isn't offered when it should be. There's a fix in, but it's not tested in game yet.
 - Spectate sometimes goes to a black screen.
 - Enemies or bosses can desync between players now and then.
 - Lag / stutter spikes, mostly on the host.
-- Puppeteer Ninjutsu puppets used to die instantly. Fix in 8.59/8.60, not tested in game.
+- Puppeteer Ninjutsu puppets used to die instantly. There's a fix, not tested in game yet.
 - 3-6 players never tested live.
 - Some flags can get lost, so the own world restore after co-op can miss some story/NPC stuff.
 - Levers, lifts and breakables aren't synced. Doors are, sort of.
 - Story phases (ministry invasion, burning castle, Shura) aren't handled as their own thing.
 - Dragonrot, Bell Demon, Kuro's Charm and cutscenes aren't handled specially.
 - The game can crash. Not often but it happens.
-- Pretty much everything from 8.53 to 8.62 hasn't been tested in game, I stopped playing around there.
+- The last batch of fixes before 1.0 beta hasn't been tested in game, I stopped playing around there.
 
 ## How to install
 
@@ -136,6 +136,10 @@ The `.cmd` files assume the default VS 2022 Build Tools path, edit them if yours
 ## Support
 
 If you like it and want to throw a coffee my way: [ko-fi.com/tihvert](https://ko-fi.com/tihvert). Totally optional.
+
+## Changelog
+
+- **1.0 beta** (2026-10-28): first public release. Internally this is build 8.62; the dev log in `docs/JATKA-TASTA-MULTIPLAYER.md` uses those 8.x numbers.
 
 ## License
 
