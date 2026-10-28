@@ -4,6 +4,8 @@ Seamless co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring 
 
 ![two players at Fountainhead](media/overlook.jpg)
 
+**Download:** [Nexus Mods](https://www.nexusmods.com/sekiro/mods/2944) or [GitHub Releases](https://github.com/Tihvert/sekiro-coop/releases).
+
 ## Heads up, read this first
 
 **The mod is still buggy.** It's a beta. Me and my buddy played a lot with it and most stuff works, but there's plenty of jank left (list below). Back up your saves.

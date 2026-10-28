@@ -136,6 +136,9 @@ A) Yes. The first time, your normal save gets copied into the co-op save. After 
 [b]Q) Can I modify or redistribute this?[/b]
 A) Yes. It's open source (MIT). Fork it, fix it, upload your own version, just give credit.
 
+[b]Q) Why does the Nexus virus scan say "suspicious"?[/b]
+A) The mod is a DLL that hooks into the game's memory, and antivirus heuristics don't like that. It's a false positive. The full source is on GitHub, so you can read it or build it yourself if you want to be sure.
+
 [b]Q) Does it work on pirated copies?[/b]
 A) No, and I won't support those.
 
