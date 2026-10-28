@@ -137,7 +137,12 @@ The `.cmd` files assume the default VS 2022 Build Tools path, edit them if yours
 
 ## Support
 
-If you like it and want to throw a coffee my way: [ko-fi.com/tihvert](https://ko-fi.com/tihvert). Totally optional.
+If you like it and want to throw a coffee my way: [ko-fi.com/tihvert](https://ko-fi.com/tihvert) (card, PayPal, Apple/Google Pay). Totally optional.
+
+Crypto works too:
+
+- **BTC:** `bc1qlytmy276zcsqw8dw2u43ywh7nuaf7qhufjrrh3`
+- **LTC:** `LNgsoAL6tZr7NJBTshy15ucCzE65r6uWHp` (cheapest for small amounts, fees are basically nothing)
 
 ## Changelog
 
