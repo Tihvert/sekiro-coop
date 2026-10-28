@@ -1,0 +1,271 @@
+SEKIRO CO-OP (testiversio 8.48, 2026-10-27) - ohje pelaajille
+==========================================================
+
+MONIPELI 2-6 PELAAJAA: yksi pelaaja on host, kaikki muut liittyvat hostin
+maailmaan. Kaikilla pitaa olla SAMA versio (protokolla 12): play.cmd paivittaa
+sen testipalvelimelta automaattisesti. Kahden pelaajan peli on testattu, 3-6
+pelaajan peli on toistaiseksi vain yksikkotestattu (ei livena). Sana "kaveri"
+alla tarkoittaa muita pelaajia.
+
+TARVITSET
+- Oman Steam-Sekiron (versio 1.06, normaali paivitetty peli).
+- me3-modilataajan: https://github.com/garyttierney/me3/releases
+  (Windows-asennusohjelma, oletusasetukset).
+
+KERRAN TEHTAVAT
+1. Jos Sekiro Online tai muita modeja on asennettuna: poista pelikansiosta
+   dinput8.dll, steam_api64.org, cream_api.ini ja SekiroOnlineFont.ttf, ja
+   tee Steamissa: Sekiro > Ominaisuudet > Asennetut tiedostot > Tarkista
+   pelitiedostojen eheys.
+2. Pura tama zip mihin tahansa kansioon (EI pelikansioon).
+3. Kaynnista peli kerran play.cmd:lla ja sulje se. Mod kirjoittaa silloin
+   asetustiedoston sekiro_coop_settings.ini TAMAN KANSION sekiro_coop.dll:n
+   viereen. (Voit myos kopioida sen suoraan hostilta.)
+4. Avaa sekiro_coop_settings.ini Muistiolla ja kirjoita ylimmalle riville
+      password = <yhteinen salasana>
+   Salasana on sama kaikilla pelaajilla ja hostilla. Ilman salasanaa co-op ei kaynnisty
+   (ruudun vasemmassa ylakulmassa lukee "password not set").
+
+PELAAMINEN (co-op-esineet, kuten Elden Ring Seamless Co-opissa)
+1. Steam paalle. 2. Tuplaklikkaa play.cmd. 3. Lataa tallennus.
+4. Peli alkaa yksin. Kolme co-op-esinetta saat tutoriaalin jalkeen: kun
+   havisit ensimmaisen Genichiro-taistelun ja heraat Dilapidated Templessa,
+   lepaa temppelin idolilla. Esineet tulevat Goods-valikkoon (normaali
+   "sait esineen" -ilmoitus). Jos olet jo tutoriaalin ohi, esineet tulevat
+   seuraavalla idolilla lepaamisella. Jos esine katoaa, se tulee takaisin
+   seuraavalla lepaamisella.
+     Kindred Bell   = avaa oma maailmasi (host).
+     Kindred Charm  = etsi kaverin maailma ja liity siihen.
+     Severed Thread = lopeta co-op / sulje maailmasi.
+   Esineet eivat kulu. Laita ne Quick Items -paikkaan tai kayta valikosta.
+5. Host kayttaa Kindred Bellin ("Hosting - waiting for a companion"), sitten
+   jokainen muu pelaaja kayttaa Kindred Charmin ("Searching for host...").
+   Ylavasemmalla nakyy tila, esim. "connected to <nimi> (Steam, 62 ms)".
+   SEURAA USEAMPI PELAAJA: vain YKSI on host, kaikki muut liittyvat hostin
+   osoitteeseen (Steamilla Charm etsii hostin; UDP:lla kaikki kirjoittavat
+   saman hostin osoitteen udp_host_address-riville, portti on sama 28100/UDP
+   ja se pitaa avata vain hostilla). Hostin ini ([ADVANCED]): max_players =
+   2..6 (oletus 6, eli kuka tahansa mahtuu ilman asetusta; luku muuttaa
+   myos Steam-lobbyn kokoa). Kun huone on taynna, uusi liittyja hylataan.
+   Kun joku liittyy tai lahtee, kaikki nakevat ilmoituksen "<nimi> joined" /
+   "<nimi> left". Host valittaa pelaajien viestit toisille.
+6. Kukin liittyja siirretaan hostin luo (kesken liittymisen lepaat idolilla,
+   jotta omassa tallennuksessasi kuolleet viholliset heraavat; host ei
+   huomaa).
+7. Lopetus: Severed Thread. Jos host lopettaa, co-op loppuu myos muilta
+   (he jaavat omiin maailmoihinsa ja saavat ilmoituksen). Jos joku liittyja
+   lopettaa, hostin maailma ja muut pelaajat jatkavat.
+8. Paluu paavalikkoon (Quit Game) tai toisen tallennuksen lataus lopettaa
+   co-opin. Latauksen jalkeen esinetta pitaa kayttaa uudelleen.
+Co-op kayttaa omaa tallennusta (S0000.coop.sl2); tavallinen ei muutu.
+OMA MAAILMA SAILYY: liittyja pelaa hostin maailmassa vain co-opin ajan. Kun
+co-op loppuu (Severed Thread, host sulkee maailmansa, paavalikko, yhteys
+katkeaa pysyvasti), peli palauttaa liittyjan oman maailman ja lataa sen
+idolin kautta. Co-opissa saatu edistys lisataan siihen: kaadetut bossit ja
+minibossit, avatut idolit seka avatut ovet ja oikotiet. NPC-tehtavien tila
+palaa ennalleen (ettei tehtava mene rikki). Esineet, sen, kokemus, tasot ja
+taidot ovat aina omiasi. Jos peli kaatuu kesken co-opin, oma maailma
+palautetaan, kun lataat saman tallennuksen seuraavan kerran (n. 8 s
+latauksen jalkeen). Varmuuskopio: %LOCALAPPDATA%\sekiro-coop\own_world_slotN.bin.
+PELAATTEKO KOKO PELIN YHDESSA? [GAMEPLAY] own_world_mode = auto (oletus):
+jos omassa maailmassasi ei ollut mitaan, mita hostin maailmassa ei ole
+(esim. pelaatte aina yhdessa), co-opin lopussa pidat jaetun maailman
+sellaisenaan omanasi (mirror, ei latausta). Muuten saat oman maailmasi
+takaisin + co-opin edistyksen (merge, kuten ylla). mirror / merge = aina se.
+Esineet, kaupat, taidot ja kuolematila ovat joka tapauksessa omiasi.
+
+MAAILMA SEKAISIN? (RESYNC) Jos viholliset, ovet tai muu nayttaa eri
+tavalla kuin muilla: kayta Kindred Bell kesken co-opin. Ruutuun tulee
+"Use again to resync the world (both rest)". Kayta se uudelleen 5 s
+sisalla: kaikki pelaajat lepaavat (viholliset ja esineet palaavat kuten
+idolilla lepaamisessa). Ei toimi bossitaistelun aikana. Valikko tai
+keskustelu auki: lepo odottaa, kunnes ne on suljettu (enintaan 20 s).
+
+TALLENNUKSEN VARMUUSKOPIOT: mod kopioi co-op-tallennuksen (S0000.coop.sl2)
+kansioon %LOCALAPPDATA%\sekiro-coop\save-backups\ co-opin alussa, lopussa,
+ennen oman maailman palautusta ja 10 min valein co-opissa. 10 uusinta
+sailyy. Palautus: SULJE PELI, mene kansioon %APPDATA%\Sekiro\<numero>\,
+siirra nykyinen S0000.coop.sl2 talteen, kopioi haluamasi varmuuskopio
+sinne ja nimea se S0000.coop.sl2:ksi. Kaynnista sitten peli.
+
+ASETUKSET (sekiro_coop_settings.ini)
+- Tiedostoa luetaan pelin aikana ~2 s valein: useimmat muutokset tulevat heti
+  voimaan. Salasanan, nimen tai [ADVANCED]-rivien muutos aloittaa yhteyden
+  alusta.
+- Ylimpana: password ja player_name (nimi paasi ylla, tyhja = Steam-nimesi).
+  Sitten [GAMEPLAY], [DISPLAY], [ADVANCED] ja viimeisena [DEBUG].
+- Hostia tai liittyjaa ei valita asetuksissa: esineet paattavat. Vanhan
+  tiedoston role-rivi ei tee mitaan (sen voi poistaa).
+- [ADVANCED] transport: auto (oletus) / steam / udp. auto_connect = 1 yhdistaa
+  heti pelin alussa ilman esineita (vanha tapa); oletus 0.
+- Jos Steam ei toimi, transport = auto vaihtaa 15 s kuluttua UDP:hen. UDP:lla
+  host kirjoittaa liittymiskoodinsa tiedostoon udp_join_code.txt (settings-
+  tiedoston viereen) ja nayttaa sen ylavasemmalla. Kirjoita koodi omaan
+  tiedostoosi: udp_host_address = <ip:portti> ja transport = udp.
+- KUN HOSTIN IP VAIHTUU: vaihda se KAHTEEN tiedostoon tassa kansiossa:
+  sekiro_coop_settings.ini: udp_host_address = <uusi ip>:28100 (peliyhteys)
+  test_server.txt: <uusi ip>:28101 (paivitykset ja loki).
+  Muokkaa Muistiolla puretusta kansiosta (ei zipin sisalta) ja tallenna.
+- Pelissa ei ole valikkoa eika pikanappaimia. Vain testaajille: [DEBUG]-osion
+  debug_hotkeys = 1 antaa F8 (herata idolilla bossin kuolinruudussa), F9
+  (siirry kaverin luo), F11 (merkitse hetki lokiin), F3 (resync heti).
+- death_debuffs = 1 (oletus): jokainen kuolema co-opissa laskee max HP:ta ja
+  ryhtia (posture) 10 % (enintaan 5 kertaa = 50 %). Poistuu kun lepaat itse
+  idolilla. 0 = pois.
+- enemy_health_scaling, enemy_posture_scaling, boss_health_scaling,
+  boss_posture_scaling: montako % vihollisille/bosseille lisataan co-opissa
+  (oletukset ks. SKAALAUS alla). Hostin arvot patevat kaikilla koneilla.
+  scaling_count = session (oletus): kaikki yhteydessa olevat pelaajat
+  lasketaan skaalaukseen; block = vain hostin kartta-alueella olevat.
+- max_players (host, [ADVANCED]): 2..6, oletus 6. native_session_max_players
+  (oletus 6): pelin oma vihollissynkka kay niin kauan kuin maailmassa on
+  enintaan taman verran pelaajia, sen yli modin oma synkka.
+- [DEBUG] loopback_peers (0..5) simuloi muita pelaajia samalla koneella;
+  vain kehittajille.
+
+AUTOMAATTISET TESTITOIMINNOT (vain testiversiossa)
+- LOKI: peli lahettaa lokisi hostille automaattisesti pelatessa (5 s valein).
+  Sinun ei tarvitse lahettaa mitaan, paitsi jos peli kaatuu ennen yhteytta.
+  Steam-lokirivit alkavat "steam:" (%LOCALAPPDATA%\sekiro-coop\log.txt).
+- TALLENNUS: kun suljet pelin, play.cmd lahettaa hostille myos co-op-tallennuksesi (S0000.coop.sl2),
+  coop_state.json:n ja uusimman varmuuskopion, jotta puuttuvat esineet (esim. Spirit Emblemit)
+  voidaan korjata kasin. Lokit lahetetaan pakattuna (log.old.txt + log.txt). Odota, etta ikkuna sulkeutuu itse.
+- PAIVITYS: play.cmd hakee hostin uusimmat tiedostot (peli-DLL, play.cmd,
+  update.ps1, upload-log.ps1, sekiro-coop.me3, OHJE.txt) ENNEN pelin
+  kaynnistysta. Osoite on test_server.txt:ssa (tai UDP-yhteydella
+  udp_host_address asetustiedostossa); hostin testipalvelimen (test-server.cmd)
+  pitaa olla kaynnissa. Omia asetuksiasi (sekiro_coop_settings.ini) ei koskaan
+  muuteta. Uusi play.cmd tulee kayttoon vasta seuraavalla kerralla. Ilman
+  osoitetta paivitys ohitetaan: pyyda host lahettamaan uusi zip. Pelin
+  sisalla mitaan ei ladata: jos versiot eroavat, ruutuun tulee ohje sulkea
+  peli ja ajaa play.cmd uudestaan.
+
+KATSOMOKAMERA (kun kuolet bossitaistelussa ja odotat): kamera seuraa elossa
+olevaa pelaajaa. Hiiri tai oikea tatti kiertaa kameraa (spectate_orbit),
+hiiren keskinappi tai R3 (oikean tatin painallus) lukitsee kohteeseen
+(spectate_lock, spectate_lock_key, oletus 4 = keskinappi). Kohteen vaihto
+elavien pelaajien valilla: hiiren sivunappi X1 (spectate_switch_key, oletus
+5, 0 = pois) tai ohjaimen D-pad oikealle = seuraava, vasemmalle = edellinen
+(pelaajajarjestys tunnuksen mukaan). Jos katsottu pelaaja kuolee tai yhteys
+katkeaa, kamera siirtyy heti toiseen elavaan. Hienosaato: spectate_orbit_speed,
+spectate_lock_height, spectate_recenter_s.
+
+PARTY-HP-PALKIT: jokaisella muulla pelaajalla on oma HP-palkki
+(party_hp_bars = 1). party_hp_position = head (palkki pelaajan nimikyltin
+alla, seuraa pelaajaa), left (lista vasemmalla) tai top (lista ylhaalla
+tilarivin alla). party_hp_content = name_hp / hp / hp_numbers (HP-luvut
+palkin vieressa). party_hp_scale = 50..200 (koko prosentteina).
+
+TAPPOISKUN (deathblow) LUKKO: jos kaksi pelaajaa iskee tappoiskun samaan
+viholliseen samaan aikaan, vain yksi onnistuu ja muiden yritys peruuntuu.
+Hostin ja liittyjan valilla aikaisempi aloitus voittaa; kahden liittyjan
+valilla host paattaa sen mukaan, kumman viesti tuli sille ensin. Lukko
+toimii kaikille 2-6 pelaajalle.
+
+KAIKKI KUOLLEET (wipe): bossitaistelu nollataan vasta, kun KAIKKI pelaajat
+ovat kuolleet; yhden tai kahden kuolema ei nollaa kolmen+ pelissa. Odottava
+paasee takaisin, kun boss kaatuu, kaikki katsottavat ovat kuolleet tai joku
+lepaa idolilla.
+
+AUDITOR: peli vertaa tilaasi (esineet, liput, palkinnot) hostin kanssa
+jokaisen yhteyden osalta erikseen ja kirjoittaa lokiin "audit: SUSPECT
+[peer N 'nimi'] ..." jos jokin ei tasmaa. Ei vaikuta pelaamiseen.
+
+PELAAJAT NAKYVAT OIKEINA PELAAJINA (natiivi) oletuksena. Jos peli kaatuu tai
+sekoilee: [DEBUG]-osiossa native_remote = 0.
+
+VIHOLLISET synkkaa nyt pelin oma nettikoodi ([ADVANCED] native_session = 1,
+native_session_stage = 3). Molemmilla pelaajilla PITAA olla samat arvot, ja
+ne asetetaan ennen pelin kaynnistysta. Jos se ei toimi: native_session = 0.
+
+TESTAUS: kerro isannalle jos jokin ei toimi; kaverin loki tulee isannalle
+automaattisesti.
+ 1 Esineet tulevat temppelin idolilla lepaamisesta (ei aiemmin). Host:
+   Kindred Bell, kaveri: Kindred Charm -> yhteys (tilarivi). Severed Thread
+   lopettaa; paavalikkoon palaaminen lopettaa myos.
+ 2 Kaverin liike isannan pelissa, nimi ja ping kaverin paalla, nuoli kun han
+   ei nay (overhead_player_display = 0/1/2).
+ 3 Ilmoitukset "<nimi> joined" / "<nimi> left" liittyessa ja lahtiessa.
+ 4 ISANTA kuolee (kaveri elossa): isannan latauksen jalkeen kaverin tappamat
+   viholliset pysyvat kuolleina myos isannalla.
+ 5 KAVERI kuolee: isannan viholliset eivat resetoidu.
+ 6 MOLEMMAT kuolevat (esim. bossi): viholliset resetoituvat molemmilla.
+ 7 Bossi: kuoltuasi odotat kuolinruudussa kunnes boss kaatuu tai kaveri
+   kuolee/lepaa (ruudulla "Spectating <nimi>").
+ 8 Kuoleman jalkeen max HP -10 % (palkki lyhenee), poistuu omalla lepolla.
+ 9 Viholliset ja bossit kestavat co-opissa enemman (sama HP molemmilla).
+
+ESINEET KAVERILLE (share_key_items = 1): kun NPC tai tapahtuma antaa
+sinulle esineen (Healing Gourd, Mortal Blade, Young Lord's Bell Charm,
+proteesityokalu, Prayer Bead...), kaveri saa saman esineen 5 s myohemmin
+(ei jos hanella jo on). Maasta poimitut ja kaupasta ostetut pysyvat
+omina. Minibossin pudotus (Prayer Bead, Gourd Seed) tulee nyt molemmille
+ruumiin viereen; jos kaveri on kaukana, se tulee hanelle suoraan.
+Yhdistettaessa molemmat nakevat, mita avainesineita toiselta puuttuu.
+BOSSIN ALOITUS (boss_start_gate = 1): jos kaveri aloittaa bossin kaukana
+sinusta, bossi ei kaynnisty sinun maailmassasi ennen kuin tulet lahelle
+(60 m). Voitto tulee sinullekin. 0 = pois.
+VARMISTUS (confirm_items = 1): co-op-esineet kysyvat ensin pelin omalla
+kylla/ei-ikkunalla (Kindred Bell: avaa maailma, Charm: liity, Thread: lahde
+/ sulje maailma; Bell yhteyden aikana: "Resync the world?"). Ei = mitaan ei
+tapahdu. Jos ikkuna ei aukea, esine toimii kuten ennen (lokiin rivi).
+PALUU OMAAN MAAILMAAN (reload_on_leave = 1): kun lahdet kaverin maailmasta
+(Thread, isanta sulkee, yhteys katkeaa), oma maailma latautuu viimeisimmalla
+idolilla latausruudun kautta. Ei bossitaistelun eika valikon aikana: odottaa.
+Isanta ei siirry; han saa ilmoituksen kun kaveri tulee.
+ILMOITUKSET (native_notices = 1): tarkeat co-op-viestit pelin omana
+ruutuviestina, joka haviaa itsestaan (ei OK-nappia, ei taukoa). 0 = vain
+vasen ylakulma. EI TESTATTU PELISSA.
+IDOLI: kun kaveri avaa sinulle uuden idolin, naet pelin oman
+"SCULPTOR'S IDOL FOUND" -bannerin. EI TESTATTU PELISSA.
+EI TAUKOA CO-OPISSA (no_pause_in_coop = 1): yhteyden aikana valikot,
+inventaario ja esineilmoitukset eivat pysayta pelia (kuten FromSoftin
+nettipelissa): vihollinen voi lyoda valikon aikana. Yksin peli pysahtyy
+kuten ennen. 0 = valikot pysayttavat. EI TESTATTU PELISSA.
+HENGET JA KUOLEMAT (native_lives_sync = 1): natiivissa sessiossa bossin /
+minibossin menetetty henki (deathblow) ja vihollisen kuolema nakyvat
+molemmilla noin puolessa sekunnissa; kuollut vihollinen ei enaa lyo.
+Lokiin "livesync: ...". Molemmilla oltava sama versio. EI TESTATTU PELISSA.
+LEPO NOLLAA MOLEMMAT: kumman tahansa lepo idolilla tuo viholliset takaisin
+molemmille (myos kaverin lepo; ennen kaverin viholliset jaivat kuolleiksi).
+Isannan oma kuolema ei nollaa. Lokiin "rest: ... respawn verified".
+SALAMURHAT (stealth_window_m = 15): kun hiivit vihollisen taakse tai olet
+sen ylapuolella (katolla, oksalla) 15 m sisalla, vihollinen toimii sinun
+koneesi tekoalylla, joten selkapuukko ja pudotusisku toimivat kuten yksin.
+0 = vanha 5 m. Lokiin "throw: handoff ... reason behind/above" tai
+"stealth: claiming enemy ...".
+LOPETUS (block_quit_in_coop): oletuksena POIS (0, testaamaton): kayta aina
+Severed Thread ennen Quit Game -valintaa. Jos asetat arvoksi 1, co-opin aikana
+Quit Game ei vie alkuvalikkoon: ilmoitus "Use Severed Thread to leave co-op
+before quitting." Alt+F4 toimii aina. EI TESTATTU PELISSA.
+OVET (2026-10-24): kun kaveri avaa oven jonka luona olet, ovi aukeaa myos
+sinulla itsestaan (lokiin "doors: the friend opened a door ..."). Ennen ovi
+saattoi sulkeutua toiselta kun molemmat avasivat sen. EI TESTATTU PELISSA.
+NPC-ESITTELY (shared_npc_intros = 0): jos kaveri puhui NPC:lle jota et ole
+tavannut, kuulet NPC:n ensimmaisen puheen itse; sen jalkeen kaverin valinnat
+patevat molemmille (lokiin "npc intro: ..."). 1 = vanha tapa (esittely
+jaa valiin). Molemmilla oltava sama versio. EI TESTATTU PELISSA.
+NIMI KAUKAA: kaverin nimi nakyy nyt milla etaisyydella tahansa samalla
+alueella, 40 m jalkeen myos etaisyys metreina. Toisella alueella ei nay.
+SKAALAUS: uudet oletukset viholliset HP +60 %, bossit HP +150 %, vihollisten
+asento +60 %, bossien asento +80 % (isannan arvot kayvat kaikille; ks. scaling_count).
+Nama ovat toisen pelaajan lisat. Jokainen seuraava pelaaja lisaa vahemman:
+HP 85 % edellisesta, asento 60 % (6 pelaajaa: bossin HP 6,6x, asento 2,8x).
+LIPPUJEN MENETYS LEVOSSA: levon aikana peli kirjoittaa satoja lippuja kerralla ja
+osa (ovet, idolit, tehtavat) ei mennyt kaverille. Nyt puskuri on isompi ja levon
+jalkeen tilat tarkistetaan ja puuttuvat lahetetaan (lokiin "world: ... resynced
+N flags by diff"). EI TESTATTU PELISSA.
+
+LOKIEN LAHETYS KASIN (jos automaattinen lahetys ei onnistu tai loki on mielestasi liian iso):
+Aja kansiosta laheta-lokit.cmd (tuplaklikkaus, voi ajaa pelin ollessa auki tai kiinni).
+Se pakkaa lokit, tallennuksen ja tilan pieneksi zipiksi tyopoydalle
+(sekiro-coop-lokit-<nimi>-<paiva>.zip, yleensa 2-10 Mt, ei sisalla salasanaa) ja yrittaa lahettaa
+sen hostille. Jos lahetys ei onnistu (test_server.txt puuttuu), laheta tyopoydalle ilmestynyt zip
+kasin hostille (esim. Discordiin). F11 (tai ohjaimen Back/Share) merkitsee hetken lokiin, kun
+huomaat bugin: loki kirjaa silloin paikallisen kellonajan.
+
+CO-OP SETTINGS -SIVU PELIN OMASSA VALIKOSSA (kokeellinen, v8.35): lisaa sekiro_coop_settings.ini:n [GAMEPLAY]-osioon
+rivi native_mod_menu = 1. Silloin Options-listan "Network Settings" -kohta on nimeltaan "Co-op Settings" ja sen sivulla
+on modin asetukset pelin omina riveina (ohjain ja hiiri toimivat kuin muissakin asetuksissa). Isanta muuttaa pelisaannot,
+kaveri nakee isannan arvot. Jos peli kaatuu tai sivu on rikki, poista rivi (tai aseta 0). Pelin oma Network-sivu
+ei ole tarpeen tassa modissa. EI TESTATTU PELISSA.

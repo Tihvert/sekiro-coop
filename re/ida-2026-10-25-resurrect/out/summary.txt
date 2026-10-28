@@ -1,0 +1,100 @@
+W 0x2128 0x14044fd2a fn 0x14044dc10 | mov     [rbp+38C0h+var_1798], rax
+W 0x2130 0x14044fd31 fn 0x14044dc10 | mov     [rbp+38C0h+var_1790], rax
+W 0x2138 0x14044fd38 fn 0x14044dc10 | mov     [rbp+38C0h+var_1788], rsi
+W 0x2130 0x14073c29f fn 0x14073c260 | movaps  [rsp+21A0h+var_70], xmm8
+W 0x2134 0x1407c6299 fn 0x1407c6230 | mov     [rsp+68h+var_30], 0
+W 0x2134 0x1407c62e1 fn 0x1407c6230 | jz      loc_1407C63B3
+W 0x2128 0x1408c186f fn 0x1408c15a0 | mov     [rsi+2128h], r14d
+R 0x212c 0x1408c187b fn 0x1408c15a0 | lea     rax, [rsi+212Ch]
+W 0x213c 0x1408c18a6 fn 0x1408c15a0 | mov     [rsi+213Ch], cl
+R 0x2128 0x1408c4e87 fn 0x1408c4e80 | mov     eax, [rax+2128h]
+W 0x213c 0x1408c66d7 fn 0x1408c66d0 | cmp     byte ptr [rdx+213Ch], 0
+W 0x2134 0x1408c66ea fn 0x1408c66d0 | mov     [rdx+2134h], rax
+W 0x213c 0x1408c66f0 fn 0x1408c66d0 | mov     byte ptr [rdx+213Ch], 0
+W 0x212c 0x1408c66f9 fn 0x1408c66d0 | mov     [rdx+212Ch], rax
+W 0x213c 0x1408c66ff fn 0x1408c66d0 | mov     byte ptr [rdx+213Ch], 0
+W 0x2128 0x1408c6a37 fn 0x1408c6a30 | mov     [rax+2128h], ecx
+W 0x213c 0x1408c7d66 fn 0x1408c7c50 | cmp     byte ptr [rcx+213Ch], 0
+W 0x212c 0x1408c7d7f fn 0x1408c7c50 | mov     [rcx+212Ch], rax
+W 0x213c 0x1408c7d85 fn 0x1408c7c50 | mov     byte ptr [rcx+213Ch], 0
+W 0x213c 0x1408c7da9 fn 0x1408c7c50 | cmp     byte ptr [rcx+213Ch], 0
+W 0x212c 0x1408c7db8 fn 0x1408c7c50 | mov     [rcx+212Ch], rax
+W 0x213c 0x1408c7dc8 fn 0x1408c7c50 | mov     byte ptr [rcx+213Ch], 0
+R 0x2128 0x1408c8e2a fn 0x1408c8260 | lea     r8, [rdi+2128h]
+R 0x2130 0x1408ca1f1 fn 0x1408c8260 | lea     r8, [rdi+2130h]
+R 0x212c 0x1408ca20a fn 0x1408c8260 | lea     r8, [rdi+212Ch]
+W 0x2128 0x140a21922 fn 0x140a217a0 | mov     qword ptr [rdi+2128h], 41700000h
+W 0x2130 0x140a2192c fn 0x140a217a0 | mov     [rdi+2130h], esi
+W 0x2134 0x140a21932 fn 0x140a217a0 | mov     dword ptr [rdi+2134h], 3FE66666h
+W 0x2138 0x140a2193c fn 0x140a217a0 | mov     dword ptr [rdi+2138h], 0BF800000h
+W 0x213c 0x140a21947 fn 0x140a217a0 | mov     word ptr [rdi+213Ch], 1
+W 0x2138 0x140a26132 fn 0x140a26120 | mov     dword ptr [rbx+2138h], 0BF800000h
+W 0x212c 0x140a2613c fn 0x140a26120 | mov     dword ptr [rbx+212Ch], 0
+W 0x212c 0x140a2b5f2 fn 0x140a2b5f0 | movss   xmm1, dword ptr [rcx+212Ch]
+W 0x2138 0x140a2b612 fn 0x140a2b610 | movss   xmm1, dword ptr [rcx+2138h]
+R 0x2134 0x140a2ccae fn 0x140a2cc30 | mov     eax, [rbx+2134h]
+W 0x2138 0x140a2ccb9 fn 0x140a2cc30 | mov     [rbx+2138h], eax
+W 0x212c 0x140a2ccbf fn 0x140a2cc30 | mov     dword ptr [rbx+212Ch], 0
+R 0x213c 0x140a33bfa fn 0x140a33190 | lea     r8, [rdi+213Ch]
+R 0x2128 0x140a33ee1 fn 0x140a33190 | lea     rdx, [rdi+2128h]
+R 0x212c 0x140a33f15 fn 0x140a33190 | lea     rdx, [rdi+212Ch]
+R 0x2134 0x140a33f32 fn 0x140a33190 | lea     rdx, [rdi+2134h]
+R 0x2138 0x140a33f65 fn 0x140a33190 | lea     rdx, [rdi+2138h]
+R 0x2130 0x140a33fef fn 0x140a33190 | lea     rdx, [rdi+2130h]
+W 0x213c 0x140a36701 fn 0x140a366a0 | cmp     byte ptr [rbx+213Ch], 0
+W 0x212c 0x140a36a90 fn 0x140a36a60 | movss   xmm0, dword ptr [rbx+212Ch]
+W 0x212c 0x140a36ab1 fn 0x140a36a60 | movss   dword ptr [rbx+212Ch], xmm0
+W 0x212c 0x140a36b42 fn 0x140a36a60 | mov     dword ptr [rbx+212Ch], 0
+W 0x212c 0x140a36bcd fn 0x140a36a60 | mov     dword ptr [rbx+212Ch], 0
+W 0x2138 0x140a36be4 fn 0x140a36a60 | movss   xmm0, dword ptr [rbx+2138h]
+W 0x2138 0x140a36bf9 fn 0x140a36a60 | movss   dword ptr [rbx+2138h], xmm0
+W 0x2138 0x140a36c1b fn 0x140a36a60 | mov     dword ptr [rbx+2138h], 0
+R 0x2128 0x140a36c35 fn 0x140a36a60 | mov     eax, [rbx+2128h]
+W 0x212c 0x140a36c40 fn 0x140a36a60 | mov     [rbx+212Ch], eax
+W 0x2138 0x140a36c46 fn 0x140a36a60 | mov     dword ptr [rbx+2138h], 0BF800000h
+W 0x2130 0x140a36c75 fn 0x140a36a60 | movss   xmm1, dword ptr [rbx+2130h]
+W 0x212c 0x140a36c9b fn 0x140a36a60 | mov     dword ptr [rbx+212Ch], 0
+W 0x2138 0x140a36ca5 fn 0x140a36a60 | mov     dword ptr [rbx+2138h], 0BF800000h
+W 0x213c 0x140a6d2e3 fn 0x140a6d270 | mov     byte ptr [rcx+213Ch], 1
+W 0x2128 0x140c3132a fn 0x140c31240 | movss   xmm6, dword ptr [rcx+2128h]
+W 0x2130 0x1411c29f4 fn 0x1411c1a20 | movaps  xmm1, xmmword ptr [rbx+2130h]
+W 0x2134 0x1411d0fa0 fn 0x1411d0e40 | mov     [rsi+2134h], r14
+W 0x2130 0x1411d0fa7 fn 0x1411d0e40 | mov     [rsi+2130h], r14d
+R 0x2130 0x1411d1bdd fn 0x1411d1950 | lea     r8, [rdi+2130h]
+R 0x2134 0x1411d1bf3 fn 0x1411d1950 | lea     r8, [rdi+2134h]
+R 0x2138 0x1411d1c09 fn 0x1411d1950 | lea     r8, [rdi+2138h]
+W 0x2130 0x1411d271e fn 0x1411d2620 | movaps  xmm2, xmmword ptr [rbx+2130h]
+W 0x2130 0x1411d276b fn 0x1411d2620 | movdqa  xmmword ptr [rbx+2130h], xmm0
+W 0x2128 0x1418d533e fn 0x1418d3640 | mov     [rbp+3E50h+var_1D28], 0FFFFFFh
+W 0x2130 0x1418d5352 fn 0x1418d3640 | mov     [rbp+3E50h+var_1D20], 0FFFFFFFFh
+W 0x212c 0x1418d535d fn 0x1418d3640 | mov     [rbp+3E50h+var_1D24], di
+W 0x2134 0x1418d5364 fn 0x1418d3640 | mov     [rbp+3E50h+var_1D1C], r14d
+W 0x2138 0x1418d5371 fn 0x1418d3640 | mov     [rbp+3E50h+var_1D18], 0FFFFFFFFh
+W 0x2128 0x1418d53d1 fn 0x1418d3640 | mov     [rbp+3E50h+var_1D28], eax
+W 0x2130 0x1418d53de fn 0x1418d3640 | mov     [rbp+3E50h+var_1D20], ebx
+
+writer fn 0x14044dc10 len 135551 callers ['0x1403ed2a0']
+writer fn 0x14073c260 len 128786 callers ['0x140734790']
+writer fn 0x1407c6230 len 1396 callers []
+writer fn 0x1408c15a0 len 18153 callers ['0x1408c52f0']
+writer fn 0x1408c66d0 len 402 callers ['0x140d5fde0', '0x140eb9750', '0x140eb9780', '0x141163e90', '0x1411cda10']
+writer fn 0x1408c6a30 len 160 callers ['0x1411bb790', '0x1411c63a0']
+writer fn 0x1408c7c50 len 3191 callers []
+writer fn 0x140a217a0 len 15411 callers ['0x140a058a0', '0x140a05a80', '0x140a06180', '0x140a39100', '0x140a39280']
+writer fn 0x140a26120 len 213 callers ['0x1411d2fa0']
+writer fn 0x140a2b5f0 len 84 callers ['0x140a740d0', '0x140c30f80', '0x140c31700', '0x140c326f0', '0x1411c1a20', '0x1411d2ef0', '0x1411d2fa0', '0x1411d4110']
+writer fn 0x140a2b610 len 85 callers ['0x140a740d0', '0x140c30f80', '0x140c31700', '0x140c326f0', '0x1411c1a20', '0x1411d2ef0', '0x1411d4110']
+writer fn 0x140a2cc30 len 706 callers ['0x140b53170']
+writer fn 0x140a366a0 len 1918 callers []
+writer fn 0x140a36a60 len 2843 callers ['0x140a37560']
+writer fn 0x140a6d270 len 727 callers []
+writer fn 0x140c31240 len 1968 callers []
+writer fn 0x1411c1a20 len 104271 callers []
+writer fn 0x1411d0e40 len 5821 callers ['0x14080ec30', '0x140ae0250']
+writer fn 0x1411d2620 len 1752 callers ['0x1411d2200']
+writer fn 0x1418d3640 len 274073 callers ['0x1418c77e0']
+extra 0x1409f3430 len 432
+extra 0x1411d44f0 len 4714
+extra 0x1411d4730 len 4714
+extra 0x1411d42f0 len 4256
+extra 0x1411d4c80 len 4974

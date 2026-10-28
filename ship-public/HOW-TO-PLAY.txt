@@ -1,0 +1,46 @@
+SEKIRO SEAMLESS CO-OP - quick guide
+===================================
+
+Beta, still buggy. Back up your saves before playing.
+Full readme, known bugs and source: <REPO_URL>
+
+YOU NEED
+- Sekiro on Steam, version 1.06 (normal, unmodded)
+- me3 mod loader: https://github.com/garyttierney/me3/releases (default install)
+- Windows
+
+ONCE
+1. Install me3.
+2. Got Sekiro Online or other online mods? Delete dinput8.dll, steam_api64.org,
+   cream_api.ini and SekiroOnlineFont.ttf from the game folder, then
+   Steam > Sekiro > Properties > Installed Files > Verify integrity.
+3. Unzip this anywhere EXCEPT the game folder.
+4. Start Steam, run play.cmd once, close the game.
+   sekiro_coop_settings.ini shows up next to the DLL.
+5. Put the same password for everyone in the ini (password = ...).
+   Co-op is off while it's empty.
+6. Everyone needs the exact same mod version.
+
+PLAYING
+1. Start with play.cmd, load your save.
+2. After the intro (Genichiro beats you, you wake up at Dilapidated Temple)
+   rest at the temple idol. You get:
+   - Kindred Bell   = open your world (host)
+   - Kindred Charm  = join the host
+   - Severed Thread = leave co-op
+3. Host uses the Bell, others use the Charm. Status is in the top left corner.
+4. Settings: the ini file or Options > Co-op Settings in game.
+
+CONNECTION
+Steam by default, falls back to direct UDP after 15 s. For UDP the host needs
+port 28100 UDP open (UPnP is tried). Host address is in udp_join_code.txt,
+joiners put it in udp_host_address and set transport = udp.
+
+SAVES
+Co-op uses its own save S0000.coop.sl2, your normal save isn't touched.
+Backups: %LOCALAPPDATA%\sekiro-coop\save-backups\
+
+BUGS
+Log: %LOCALAPPDATA%\sekiro-coop\log.txt
+Press F11 (or Back/Share on a pad) when a bug happens, it marks the log.
+Report on GitHub with the logs from everyone.

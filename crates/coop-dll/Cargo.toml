@@ -1,0 +1,26 @@
+[package]
+name = "sekiro_coop"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Seamless two-player co-op for Sekiro (Phase 0: load + tick log)"
+
+[features]
+# Native remote player (the friend as a real PlayerIns): works much better than the
+# ghost in tests (2026-10-23), so on by default in test builds.
+default = ["dev-native", "testsync"]
+dev-native = []
+# Test builds only: client streams its log to the host, host pushes its own DLL to
+# a client with a different build. Never in a public release.
+testsync = []
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
+
+[dependencies]
+sekiro.workspace = true
+fromsoftware-shared.workspace = true
+coop-net = { path = "../coop-net" }
+# In-game ImGui overlay (DX11 only). Pinned: 0.9.3 (2026-09-08).
+hudhook = { version = "=0.9.3", default-features = false, features = ["dx11"] }

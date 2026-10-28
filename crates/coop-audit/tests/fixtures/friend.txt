@@ -1,0 +1,18 @@
+[1792751390] coop: task system ready, registering frame task
+[1792751395] testsync: host has build 4f2d1eefa3fcf5c3, ours 45199d63b64d3dd6: run play.cmd to update
+[1792751415] world: friend set flag 11105 = true (#1)
+[1792751425] world: friend set flag 9100 = false (#2)
+[1792751435] world: sent flag 9100 = true (#5)
+[1792751445] world: friend set flag 9100 = false (#3)
+[1792751526] reward: friend's script lot 61000 arrived (event 1750319413, 1 entries, lot flags [6705]), giving it in 5 s
+[1792751531] reward: gave the friend's script lot 61000 (event 1750319413): ["goods 2920 'Shinobi Esoteric Text' x1 (type 1, max 1)"], lot flags set [6705]
+[1792751536] reward: friend's script lot 13604000 arrived (event 1750319414, 1 entries, lot flags [53604000]), giving it in 5 s
+[1792751541] reward: waiting (menu)
+[1792751606] reward: received 40 bytes, giving them in 5 s
+[1792751656] reward: the friend's game dropped lot 10200000 for 1100300, checking ours in 15 s
+[1792751671] reward: the friend's drop of 1100300 (lot 10200000): our own drop lies at the corpse here (pick it up)
+[1792751700] reward: sent our script lot 2000 to the friend (event 1794667962, ok = true): ["goods 2910 'Mechanical Barrel' x1 (type 2, consumable, max 1)"], lot flags [6740]
+[1792751730] persist: boss 1120300 restored hp 1 lives 1 after a death reload (record from the friend, ok = true)
+[1792751760] reward: told the friend about the drop of 1120300 (lot 12000000, ok = true)
+[1792751780] coop: frame panicked (1/3), mod state reset
+[1792751810] coop: tick 9000 fps 60 mod avg 0.10 ms max 1.00 ms

@@ -1,0 +1,17 @@
+/target
+/dist
+/target-dist
+/test-builds
+
+# Secrets and local junk
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+__pycache__/
+*.pyc
+work/

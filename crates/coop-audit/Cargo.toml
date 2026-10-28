@@ -1,0 +1,15 @@
+[package]
+name = "coop-audit"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Offline analyzer of the host's and the friend's co-op logs (host machine only, not in the friend's zip)"
+
+[[bin]]
+name = "coop-audit"
+path = "src/main.rs"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]

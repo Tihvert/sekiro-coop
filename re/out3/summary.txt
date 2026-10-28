@@ -1,0 +1,17 @@
+crashfn 0x1409cbe40 len 2903
+0x1409cbefa: nop
+0x1409cbefb: lea     rcx, [rsp+108h+var_B8]
+0x1409cbf00: call    sub_1405A1930
+0x1409cbf05: lea     rbx, [rdi+r14*4]
+0x1409cbf09: mov     eax, [rbx+24h]
+0x1409cbf0c: mov     [rsi], eax
+0x1409cbf0e: mov     rax, cs:qword_143D5AAC0
+0x1409cbf15: mov     rcx, [rax+8]
+0x1409cbf19: add     rcx, 278h
+0x1409cbf20: call    sub_14079DBD0
+caller0 0x14079dbe0 len 1464
+caller1 0x14079f8a0 len 2657
+caller2 0x14079fa80 len 1451
+caller3 0x1407ceaf0 len 4821
+caller4 0x1407ceaf0 len 4821
+caller5 0x1409cb210 len 2098

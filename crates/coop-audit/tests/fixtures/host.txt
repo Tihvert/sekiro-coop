@@ -1,0 +1,39 @@
+[1792600000] CRASH? code 0xc0000005 at sekiro.exe+0x12486e last mod action: net frame (read of 0xc80)
+[1792751400] coop: task system ready, registering frame task
+[1792751402] net: connected to "HostPlayer" at <peer address removed>
+[1792751410] world: sent flag 11105 = true (#1)
+[1792751420] world: sent flag 9100 = false (#19)
+[1792751430] world: friend set flag 9100 = true (#20)
+[1792751440] world: sent flag 9100 = false (#21)
+[1792751450] world: flags sent 13 received 4 skipped-at-load 255 lost 71 dirty 0; snapshot chunks unacked 0; most written [(9900, 1008), (410, 246)]
+[1792751451] nsession: lane (10 s): sent 14 resent 0 acked 14 given up 0; received 18 dup 0 delivered 14 gaps skipped 0 bad 0; backlog 0 fragments, stale from friend 1
+[1792751452] native stats (10 s): tee false [], forward false, outbox dropped 0 too big 0; inbox received 108 served 37 dropped old 71 too big 0 queued 0; Net remote hp Some(400), 16.27 m from player
+[1792751473] key items: we own 2 key items, the friend 3; we miss ["2920 Shinobi Esoteric Text"]; the friend misses []
+[1792751500] audit: SUSPECT (sev 3) the friend has lot flag 6705 (lot 61000: goods 2920 'Shinobi Esoteric Text') [NPC talk / event gift], we do not: NPC / event gifts should reach both players (keyitems.rs)
+[1792751520] reward: sent our script lot 61000 to the friend (event 1750319413, ok = true): ["goods 2920 'Shinobi Esoteric Text' x1 (type 1, max 1)"], lot flags [6705]
+[1792751530] reward: sent our script lot 13604000 to the friend (event 1750319414, ok = true): ["goods 9206 'Herb Catalogue Scrap' x1 (type 1, consumable, max 1)"], lot flags [53604000]
+[1792751540] reward: sent our script lot 50201000 to the friend (event 1750319415, ok = true): ["goods 4000 'Prayer Bead' x1 (type 1, consumable, max 99)"], lot flags [6761]
+[1792751600] reward: sent 2 lots for boss 1100800 (ok = true)
+[1792751650] reward: told the friend about the drop of 1100300 (lot 10200000, ok = true)
+[1792751697] reward: friend's script lot 2000 arrived (event 1794667962, 3 entries, lot flags [6740]), giving it in 5 s
+[1792751700] coop: tick 100 fps 60 mod avg 0.05 ms max 0.51 ms
+[1792751700] audit: SUSPECT (sev 3) the friend has lot flag 6705 (lot 61000: goods 2920 'Shinobi Esoteric Text') [NPC talk / event gift], we do not: NPC / event gifts should reach both players (keyitems.rs)
+[1792751702] reward: friend's lot 2000 already received here (lot flags [6740] on)
+[1792751702] coop: tick 130 fps 15 mod avg 0.05 ms max 0.51 ms
+[1792751704] coop: tick 160 fps 12 mod avg 0.05 ms max 0.51 ms
+[1792751706] coop: tick 190 fps 18 mod avg 0.05 ms max 0.51 ms
+[1792751708] coop: tick 220 fps 14 mod avg 0.05 ms max 0.51 ms
+[1792751710] coop: tick 250 fps 11 mod avg 0.05 ms max 0.51 ms
+[1792751712] coop: tick 280 fps 16 mod avg 0.05 ms max 0.51 ms
+[1792751714] coop: tick 310 fps 13 mod avg 0.05 ms max 0.51 ms
+[1792751716] coop: tick 400 fps 60 mod avg 0.05 ms max 0.51 ms
+[1792751720] coop: tick 410 fps 3 mod avg 0.05 ms max 0.51 ms
+[1792751722] coop: tick 412 fps 2 mod avg 0.05 ms max 0.51 ms
+[1792751724] coop: tick 418 fps 4 mod avg 0.05 ms max 0.51 ms
+[1792751726] coop: tick 424 fps 3 mod avg 0.05 ms max 0.51 ms
+[1792751728] coop: tick 430 fps 4 mod avg 0.05 ms max 0.51 ms
+[1792751730] coop: tick 550 fps 60 mod avg 0.05 ms max 0.51 ms
+[1792751760] CRASH? code 0xc0000005 at sekiro.exe+0xbc2c87 last mod action: native remote (read of 0xffffffffffffffff)
+[1792751760] CRASH regs rcx 0x1e7280e80 rdx 0x8 rsp 0x15cf60; stack: [5]+0x9f0d31 [15]+0x9f65b1
+[1792751800] session: HostPlayer left
+[1792751830] coop: tick 9000 fps 60 mod avg 0.05 ms max 0.51 ms

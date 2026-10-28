@@ -1,0 +1,12 @@
+profileVersion = "v1"
+# Co-op uses its own save (copied from the normal one on first launch), like
+# Elden Ring Seamless Co-op's .co2: the normal save is never touched by co-op.
+savefile = "S0000.coop.sl2"
+
+[[supports]]
+game = "sekiro"
+
+[[natives]]
+path = "../dist/sekiro-coop/sekiro_coop.dll"
+optional = false
+enabled = true

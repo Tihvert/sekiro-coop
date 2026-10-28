@@ -1,0 +1,9 @@
+slots at 0x1429D5978: [1, 0, 2, 4]
+PlayerIns vft[94] = 0x140a28ac0, ReplayGhostIns vft[94] = 0x140a28ac0
+set_equip 0x1409cccb0 len 130
+set_look 0x1409f6780 len 358
+look_struct 0x140bf1410 len 226
+player_vft94 0x140a28ac0 len 82
+ghost_vft94 0x140a28ac0 len 82
+frame_equip 0x1408d6250 len 292
+frame_look 0x1408d6240 len 89

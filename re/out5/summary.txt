@@ -1,0 +1,73 @@
+VFTABLE 0x1429c27a8 const NS_SPRJ::FrpgNetWanderingGhostDb::`vftable'
+FrpgNetWanderingGhostDb_ref 0x140790ee0 len 1562
+FrpgNetWanderingGhostDb_ref 0x1407911a0 len 1821
+VFTABLE 0x1429c2aa8 const FD4::FD4DebugMenuCBMemberFuncHolder<class NS_SPRJ::FrpgNetWanderingGhostDb,void,struct DLUT::TypeList::DLTypeList<int,class DLUT::DLNullType>,1>::`vftable'
+DLNullType1_ref 0x140790cc0 len 2762
+DLNullType1_ref 0x140791410 len 311
+VFTABLE 0x1429c2ac0 const FD4::FD4DebugMenuCBMemberFuncHolder<class NS_SPRJ::FrpgNetWanderingGhostDb,void,struct DLUT::TypeList::DLTypeList<class FD4::FD4DebugMenuCtrl &,struct DLUT::TypeList::DLTypeList<int,class DLUT::DLNullType>>,2>::`vftable'
+DLNullType2_ref 0x140790a80 len 3958
+DLNullType2_ref 0x140791370 len 363
+VFTABLE 0x1429c2ad8 const FD4::FD4DebugMenuCBMemberFuncHolder<class NS_SPRJ::FrpgNetWanderingGhostDb,void,struct DLUT::TypeList::DLTypeList<class FD4::FD4DebugMenuDraw &,struct DLUT::TypeList::DLTypeList<int,class DLUT::DLNullType>>,2>::`vftable'
+DLNullType2_ref 0x1407913c0 len 363
+VFTABLE 0x1429c2b40 const NS_SPRJ::FrpgNetWanderingGhostDbIf::`vftable'
+FrpgNetWanderingGhostDbI_ref 0x140793180 len 288
+FrpgNetWanderingGhostDbI_ref 0x1407931c0 len 194
+VFTABLE 0x1429c2c98 const NS_SPRJ::FrpgNetWanderingGhostDbItem::`vftable'
+FrpgNetWanderingGhostDbI_ref 0x140793510 len 757
+FrpgNetWanderingGhostDbI_ref 0x1407935d0 len 599
+VFTABLE 0x1429c2d98 const FD4::FD4DebugMenuCBMemberFuncHolder<class NS_SPRJ::FrpgNetWanderingGhostDbItem,void,struct DLUT::TypeList::DLTypeList<class FD4::FD4DebugMenuDraw &,struct DLUT::TypeList::DLTypeList<int,class DLUT::DLNullType>>,2>::`vftable'
+DLNullType2_ref 0x140793260 len 2722
+DLNullType2_ref 0x140793660 len 367
+VFTABLE 0x1429d5ae8 const NS_SPRJ::ReplayManipulator::`vftable'
+ReplayManipulator_ref 0x1407f4350 len 847
+ReplayManipulator_ref 0x1407f44a0 len 1437
+VFTABLE 0x1429d5c60 const DLRF::DLRuntimeClassImpl<class NS_SPRJ::ReplayManipulator,0>::`vftable'
+ReplayManipulator0_ref 0x1407f4640 len 1081
+VFTABLE 0x142a2b338 const NS_SPRJ::PlayerIns::`vftable'
+PlayerIns_ref 0x140a217a0 len 15411
+PlayerIns_ref 0x140a22410 len 7766
+VFTABLE 0x142a2d190 const NS_SPRJ::ReplayGhostIns::`vftable'
+ReplayGhostIns_ref 0x140a39100 len 1747
+ReplayGhostIns_up 0x140a05bf0 len 937
+ReplayGhostIns_upu 0x140a07a60 len 1013
+ReplayGhostIns_upuu 0x140a494a0 len 353
+ReplayGhostIns_ref 0x140a39280 len 1334
+ReplayGhostIns_up 0x140a057a0 len 938
+ReplayGhostIns_upu 0x140a077e0 len 988
+ReplayGhostIns_upuu 0x140a493c0 len 82
+ReplayGhostIns_ref 0x140a393a0 len 839
+ReplayGhostIns_up 0x140a394a0 len 138
+VFTABLE 0x142a2d980 const DLRF::DLRuntimeClassImpl<class NS_SPRJ::ReplayGhostIns,0>::`vftable'
+ReplayGhostIns0_ref 0x140a394e0 len 1078
+ReplayGhostIns0_up 0x140a39be0 len 240
+ReplayGhostIns0_upu 0x1400a4f00 len 209
+ReplayGhostIns0_upu 0x1400a4f30 len 217
+ReplayGhostIns0_upu 0x140a390a0 len 379
+ReplayGhostIns0_upuu 0x140a39b30 len 812
+ReplayGhostIns0_upu 0x140a39dd0 len 159
+VFTABLE 0x142a92158 const FD4::FD4StepTemplateBase<class NS_SPRJ::CSDisplayGhost,class FD4::FD4StepBaseInterface>::`vftable'
+FD4StepBaseInterface_ref 0x140bf1f80 len 1773
+FD4StepBaseInterface_ref 0x140bf2200 len 1149
+VFTABLE 0x142a92200 const FD4::FD4StepBase<class NS_SPRJ::CSDisplayGhost>::`vftable'
+CSDisplayGhost_ref 0x140bf2080 len 685
+CSDisplayGhost_ref 0x140bf21d0 len 167
+CSDisplayGhost_ref 0x140bf22c0 len 246
+CSDisplayGhost_ref 0x140bf24d0 len 210
+CSDisplayGhost_ref 0x140bf2560 len 279
+CSDisplayGhost_ref 0x140bf25c0 len 460
+VFTABLE 0x142a922a8 const NS_SPRJ::SprjStepLocal<class NS_SPRJ::CSDisplayGhost>::`vftable'
+VFTABLE 0x142a92358 const NS_SPRJ::CSDisplayGhost::`vftable'
+CSDisplayGhost_ref 0x140bf2100 len 1124
+VFTABLE 0x142a92408 const DLRF::DLRuntimeClassImpl<class FD4::FD4StepTemplateBase<class NS_SPRJ::CSDisplayGhost,class FD4::FD4StepBaseInterface>,0>::`vftable'
+FD4StepBaseInterface0_ref 0x140bf2750 len 1130
+VFTABLE 0x142a92470 const DLRF::DLRuntimeClassImpl<class FD4::FD4StepBase<class NS_SPRJ::CSDisplayGhost>,0>::`vftable'
+CSDisplayGhost0_ref 0x140bf26a0 len 1096
+VFTABLE 0x142a924d8 const DLRF::DLRuntimeClassImpl<class NS_SPRJ::SprjStepLocal<class NS_SPRJ::CSDisplayGhost>,0>::`vftable'
+CSDisplayGhost0_ref 0x140bf2800 len 1102
+VFTABLE 0x142a92540 const DLRF::DLRuntimeClassImpl<class NS_SPRJ::CSDisplayGhost,0>::`vftable'
+CSDisplayGhost0_ref 0x140bf28b0 len 1078
+VFTABLE 0x142a925a8 const FD4::FD4DebugMenuCBMemberFuncHolder<class FD4::FD4StepTemplateBase<class NS_SPRJ::CSDisplayGhost,class FD4::FD4StepBaseInterface>,void,struct DLUT::TypeList::DLTypeList<class FD4::FD4DebugMenuCtrl &,struct DLUT::TypeList::DLTypeList<int,class DLUT::DLNullType>>,2>::`vftable'
+DLNullType2_ref 0x140bf1bc0 len 4044
+DLNullType2_ref 0x140bf2430 len 406
+VFTABLE 0x142a925c0 const FD4::FD4DebugMenuCBMemberFuncHolder<class FD4::FD4StepTemplateBase<class NS_SPRJ::CSDisplayGhost,class FD4::FD4StepBaseInterface>,void,struct DLUT::TypeList::DLTypeList<class FD4::FD4DebugMenuDraw &,struct DLUT::TypeList::DLTypeList<int,class DLUT::DLNullType>>,2>::`vftable'
+DLNullType2_ref 0x140bf2480 len 406

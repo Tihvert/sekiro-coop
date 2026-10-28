@@ -1,0 +1,21 @@
+[workspace]
+resolver = "3"
+members = ["crates/coop-dll", "crates/coop-net", "crates/coop-audit"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+license = "MIT"
+
+[workspace.dependencies]
+sekiro = "0.14"
+fromsoftware-shared = "0.14"
+
+[profile.release]
+# Keep panics as unwinds so a failed init is logged instead of killing the game.
+panic = "unwind"
+debug = "line-tables-only"
+
+# Local fix for sekiro 0.14.0 version detection (see vendor/sekiro/src/rva.rs).
+[patch.crates-io]
+sekiro = { path = "vendor/sekiro" }

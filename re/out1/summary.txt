@@ -1,0 +1,27 @@
+vftable name: ''
+vft00 0x140c10ed0 -> vft00_140c10ed0.c (163 chars)
+vft01 0x140c0f0b0 -> vft01_140c0f0b0.c (132 chars)
+vft02 0x140c0f790 -> vft02_140c0f790.c (123 chars)
+vft03 0x140c0fe90 -> vft03_140c0fe90.c (83 chars)
+vft04 0x140c103b0 -> vft04_140c103b0.c (1455 chars)
+vft05 0x140c0fe70 -> vft05_140c0fe70.c (89 chars)
+vft06 0x140c10260 -> vft06_140c10260.c (73 chars)
+vft07 0x140c0f130 -> vft07_140c0f130.c (73 chars)
+vft08 0x140c0fbf0 -> vft08_140c0fbf0.c (3060 chars)
+vft09 0x140c0f7a0 -> vft09_140c0f7a0.c (3294 chars)
+vft10 0x140c0fba0 -> vft10_140c0fba0.c (86 chars)
+vft11 0x140c0f0f0 -> vft11_140c0f0f0.c (126 chars)
+vft12 0x140c0f100 -> vft12_140c0f100.c (82 chars)
+vft13 0x140c0f110 -> vft13_140c0f110.c (126 chars)
+vft14 0x140c0f120 -> vft14_140c0f120.c (82 chars)
+vft15 0x140c0fe80 -> vft15_140c0fe80.c (82 chars)
+vft16 0x140c0fec0 -> vft16_140c0fec0.c (82 chars)
+vft17 0x140c0f770 -> vft17_140c0f770.c (82 chars)
+vft18 0x140c0f780 -> vft18_140c0f780.c (82 chars)
+vft19 0x140c10a00 -> vft19_140c10a00.c (28 chars)
+vft: 20 entries
+step00 0x140c0ff70 -> step00_140c0ff70.c (74 chars)
+step: 1 entries
+xref 0x140c0ea70 -> xref_140c0ea70.c (3526 chars)
+xref 0x140c0ed60 -> xref_140c0ed60.c (1330 chars)
+xref functions: 2
