@@ -31,12 +31,22 @@ impl SprjTaskImp {
     ///
     /// [`SystemInitError::InvalidRva`]: SystemInitError::InvalidRva
     pub fn wait_for_instance(timeout: Duration) -> Result<&'static Self, SystemInitError> {
+        // How long `NotFound` is retried even with an unbounded `timeout`.
+        const NOT_FOUND_GRACE: Duration = Duration::from_secs(120);
+
         let start = Instant::now();
         wait_for_system_init(&Program::current(), timeout)?;
 
         loop {
             match unsafe { Self::instance() } {
-                Err(InstanceError::NotFound(_)) => return Err(SystemInitError::InvalidRva),
+                // from-singleton serves only its derived map (which lacks SprjTask) while every
+                // FD4 singleton is still null, so this can be just "too early" on some PCs.
+                Err(InstanceError::NotFound(_)) => {
+                    if start.elapsed() > timeout.min(NOT_FOUND_GRACE) {
+                        return Err(SystemInitError::InvalidRva);
+                    }
+                    thread::sleep(Duration::from_millis(20));
+                }
                 Err(InstanceError::Null(_)) => {
                     if start.elapsed() > timeout {
                         return Err(SystemInitError::Timeout);

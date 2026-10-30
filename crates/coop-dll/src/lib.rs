@@ -153,14 +153,22 @@ pub unsafe extern "C" fn DllMain(hmodule: usize, reason: u32, reserved: usize) -
 }
 
 fn init(hmodule: usize) {
+    // 1.0-beta gave up on the first NotFound (too early on some PCs); it is retried now.
+    let waited = std::time::Instant::now();
     let task_imp = match SprjTaskImp::wait_for_instance(Duration::MAX) {
         Ok(t) => t,
         Err(e) => {
-            log::line(&format!("coop: SprjTaskImp not found: {e:?}"));
+            log::line(&format!(
+                "coop: SprjTaskImp not found: {e:?} after {} ms",
+                waited.elapsed().as_millis()
+            ));
             return;
         }
     };
-    log::line("coop: task system ready, registering frame task");
+    log::line(&format!(
+        "coop: task system ready after {} ms, registering frame task",
+        waited.elapsed().as_millis()
+    ));
     // The settings file first: fps and observe read it when they install.
     settings::init();
     // Launcher scripts next to the DLL kept current (a friend's old update.ps1 only fetches the DLL).
