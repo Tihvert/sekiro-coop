@@ -67,6 +67,8 @@ mod resync;
 mod rtti;
 mod scaling;
 mod settings;
+// The testers' launcher scripts (PowerShell updaters) are embedded only in test builds.
+#[cfg(feature = "testsync")]
 mod shipfiles;
 mod speffect;
 mod statelog;
@@ -172,6 +174,7 @@ fn init(hmodule: usize) {
     // The settings file first: fps and observe read it when they install.
     settings::init();
     // Launcher scripts next to the DLL kept current (a friend's old update.ps1 only fetches the DLL).
+    #[cfg(feature = "testsync")]
     shipfiles::start();
     // Installed here, at the title screen, before any character physics runs.
     hook::install();

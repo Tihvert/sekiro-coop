@@ -1,0 +1,4 @@
+This DLL includes code from:
+- fromsoftware-rs "sekiro" crate by Vincent Swarte (vswarte), MIT NON-AI OR Apache NON-AI, see the files in this folder
+- hudhook by veeenu (MIT)
+- other Rust crates listed in Cargo.lock of the source repo, under their own MIT/Apache-2.0 licenses

@@ -61,13 +61,13 @@ Steps:
 1. Install me3.
 2. If you have Sekiro Online or other online mods, remove them first. Delete `dinput8.dll`, `steam_api64.org`, `cream_api.ini` and `SekiroOnlineFont.ttf` from the game folder, then in Steam do Properties > Installed Files > Verify integrity.
 3. Unzip the mod into any folder. **Not** the game folder.
-4. Start Steam, run `play.cmd` once, then close the game. The mod makes `sekiro_coop_settings.ini` next to the DLL.
+4. Start Steam, double-click `sekiro-coop.me3` once (me3 starts the game), then close the game. The mod makes `sekiro_coop_settings.ini` next to the DLL.
 5. Open the ini and put the **same password** for everyone (`password = ...`). Co-op stays off while it's empty.
 6. Everyone needs the exact same mod version.
 
 ## How to play
 
-1. Start the game with `play.cmd` and load your save.
+1. Start Steam, double-click `sekiro-coop.me3` and load your save.
 2. After the intro (you lose to Genichiro and wake up at Dilapidated Temple), rest at the temple idol. You get 3 items:
    - **Kindred Bell**: open your world (host)
    - **Kindred Charm**: find the host's world and join it
@@ -148,6 +148,8 @@ Crypto works too:
 
 ## Changelog
 
+- **1.0.2 beta** (2026-10-30): clean public build: no test-only code (log streaming between players, DLL push from the host, launcher update scripts), no local paths in the DLL, version info in the file properties. No play.cmd any more: double-click `sekiro-coop.me3` (me3 opens it).
+- **1.0.1 beta** (2026-10-30): the mod sometimes never started (no co-op text, no ini; log said `SprjTaskImp not found: InvalidRva`). It now waits for the game instead of giving up.
 - **1.0 beta** (2026-10-28): first public release. Internally this is build 8.62; the dev log in `docs/JATKA-TASTA-MULTIPLAYER.md` uses those 8.x numbers.
 
 ## License

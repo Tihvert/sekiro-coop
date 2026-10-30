@@ -88,7 +88,7 @@ You need:
 [*] Install me3.
 [*] Got Sekiro Online or other online mods? Delete dinput8.dll, steam_api64.org, cream_api.ini and SekiroOnlineFont.ttf from the game folder, then Verify integrity of game files in Steam.
 [*] Unzip the mod anywhere [b]except[/b] the game folder.
-[*] Start Steam, run play.cmd once, close the game. sekiro_coop_settings.ini shows up next to the DLL.
+[*] Start Steam, double-click sekiro-coop.me3 once (me3 starts the game), close the game. sekiro_coop_settings.ini shows up next to the DLL.
 [*] Put the same password for everyone in the ini (password = ...). Co-op stays off while it's empty.
 [*] Everyone needs the exact same mod version.
 [/list]
@@ -98,7 +98,7 @@ Other mods haven't been tested with this. Stuff that doesn't touch multiplayer o
 
 [size=5][b]Use[/b][/size]
 [list=1]
-[*] Start the game with play.cmd and load your save.
+[*] Start Steam, double-click sekiro-coop.me3 and load your save.
 [*] After the intro (Genichiro beats you and you wake up at Dilapidated Temple), rest at the temple idol. You get 3 items:
 [b]Kindred Bell[/b] - open your world (host)
 [b]Kindred Charm[/b] - find the host's world and join it
@@ -113,8 +113,8 @@ Connection is Steam by default and falls back to direct UDP after 15 s. For UDP 
 
 [size=5][b]Troubleshooting[/b][/size]
 [b]Game doesn't start:[/b]
-- Is Steam running? play.cmd tells you if not.
-- Is me3 installed? play.cmd tells you that too.
+- Is Steam running? Start it before double-clicking sekiro-coop.me3.
+- Is me3 installed? Without it, double-clicking sekiro-coop.me3 does nothing (Windows asks which app to use).
 - Verify game files in Steam and make sure no other online mods are left in the game folder.
 
 [b]Can't connect:[/b]

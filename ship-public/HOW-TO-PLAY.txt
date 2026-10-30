@@ -1,5 +1,5 @@
-SEKIRO SEAMLESS CO-OP 1.0 beta - quick guide
-===========================================
+SEKIRO SEAMLESS CO-OP 1.0.2 beta - quick guide
+=============================================
 
 Beta, still buggy. Back up your saves before playing.
 Full readme, known bugs and source: https://github.com/Tihvert/sekiro-coop
@@ -15,14 +15,16 @@ ONCE
    cream_api.ini and SekiroOnlineFont.ttf from the game folder, then
    Steam > Sekiro > Properties > Installed Files > Verify integrity.
 3. Unzip this anywhere EXCEPT the game folder.
-4. Start Steam, run play.cmd once, close the game.
-   sekiro_coop_settings.ini shows up next to the DLL.
+4. Start Steam, double-click sekiro-coop.me3 once (me3 starts the game),
+   close the game.
+   sekiro_coop_settings.ini shows up next to the DLL. If it does not, check
+   me3 is installed and your antivirus did not remove sekiro_coop.dll.
 5. Put the same password for everyone in the ini (password = ...).
    Co-op is off while it's empty.
 6. Everyone needs the exact same mod version.
 
 PLAYING
-1. Start with play.cmd, load your save.
+1. Start Steam, double-click sekiro-coop.me3, load your save.
 2. After the intro (Genichiro beats you, you wake up at Dilapidated Temple)
    rest at the temple idol. You get:
    - Kindred Bell   = open your world (host)

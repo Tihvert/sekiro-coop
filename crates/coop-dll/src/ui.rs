@@ -155,8 +155,8 @@ fn post(f: impl FnOnce(&mut Commands)) {
 /// Shown in the status line, so both players see at once whether the mod was updated.
 /// Bump it with every release together with the first line of `dist/sekiro-coop/OHJE.txt`.
 /// Public numbering from 1.0-beta (= internal build 8.62, 2026-10-28); the 8.x numbers live on
-/// only in docs/JATKA-TASTA-MULTIPLAYER.md. 1.0.1-beta: SprjTask lookup retried (Nexus "no ini" reports).
-pub const MOD_VERSION: &str = "1.0.1-beta";
+/// only in docs/JATKA-TASTA-MULTIPLAYER.md. 1.0.1-beta: SprjTask lookup retried (Nexus "no ini" reports). 1.0.2-beta: clean public build (build-public.cmd).
+pub const MOD_VERSION: &str = "1.0.2-beta";
 
 const YELLOW: [f32; 4] = [1.0, 0.85, 0.3, 1.0];
 /// Nameplate: full opacity up to this distance, then slowly lighter.
