@@ -148,6 +148,7 @@ Crypto works too:
 
 ## Changelog
 
+- **1.0.4 beta** (2026-10-30): the Bell, Charm and Thread did nothing on non-English games because the mod looked the item up by its English name. Fixed, a player confirmed it works on a Chinese game and that Steam joining works too.
 - **1.0.3 beta** (2026-10-30): if Steam won't make a lobby (you need Sekiro owned on that account and Steam online) the status text tells you now, and a joiner that can't find a host gets told to use the host's join code in udp_host_address. Also a VPN tip (Radmin, ZeroTier) in HOW-TO-PLAY.
 - **1.0.2 beta** (2026-10-30): cleaned up the public build, the DLL had some test stuff left in it (log sharing, auto update scripts). No play.cmd anymore, just double click `sekiro-coop.me3`.
 - **1.0.1 beta** (2026-10-30): fixed the mod not starting on some PCs (no co-op text, no ini, log said `SprjTaskImp not found: InvalidRva`).
