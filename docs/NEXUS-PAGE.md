@@ -137,9 +137,6 @@ A) Yes. The first time, your normal save gets copied into the co-op save. After 
 [b]Q) Can I modify or redistribute this?[/b]
 A) Yes. It's open source (MIT). Fork it, fix it, upload your own version, just give credit.
 
-[b]Q) Is it safe? My antivirus or the Nexus scan flagged it.[/b]
-A) Up to 1.0.1 the DLL still had some test-only code in it (log sharing between players, auto-update scripts), and Nexus marked the file as suspicious. 1.0.2 removed that and the Nexus scan says "Safe to use" now. Some antivirus programs can still flag a mod DLL that hooks into a game (Elden Ring Seamless Co-op gets the same). The full source is on GitHub, so you can read it or build it yourself.
-
 [b]Q) Will you keep updating it?[/b]
 A) Maybe. No promises. That's why the source is out there.
 
