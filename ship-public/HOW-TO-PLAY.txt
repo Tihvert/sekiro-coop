@@ -1,4 +1,4 @@
-SEKIRO SEAMLESS CO-OP 1.0.2 beta - quick guide
+SEKIRO SEAMLESS CO-OP 1.0.3 beta - quick guide
 =============================================
 
 Beta, still buggy. Back up your saves before playing.
@@ -34,9 +34,12 @@ PLAYING
 4. Settings: the ini file or Options > Co-op Settings in game.
 
 CONNECTION
-Steam by default, falls back to direct UDP after 15 s. For UDP the host needs
-port 28100 UDP open (UPnP is tried). Host address is in udp_join_code.txt,
-joiners put it in udp_host_address and set transport = udp.
+Steam by default, falls back to direct UDP after 15 s. Steam lobbies only work
+when Sekiro is owned on that Steam account and Steam is online; otherwise use UDP.
+For UDP the host needs port 28100 UDP open (UPnP is tried). Host address is in
+udp_join_code.txt, joiners put it in udp_host_address and set transport = udp.
+Can't open ports? A virtual LAN (Radmin VPN, ZeroTier) works: use the host's
+VPN IP as udp_host_address.
 
 SAVES
 Co-op uses its own save S0000.coop.sl2, your normal save isn't touched.

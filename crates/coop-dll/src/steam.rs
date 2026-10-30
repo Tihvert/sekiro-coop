@@ -80,6 +80,9 @@ const CB_LOBBY_ENTER: i32 = 504;
 const CB_LOBBY_MATCH_LIST: i32 = 510;
 const CB_LOBBY_CREATED: i32 = 513;
 const RESULT_OK: i32 = 1;
+/// k_EResultAccessDenied: Steam refuses a lobby when the account does not own the game (a
+/// LuaTools/SteamTools install) or is offline. Seen on every lobby creation in our own tests.
+const RESULT_ACCESS_DENIED: i32 = 15;
 const ENTER_SUCCESS: u32 = 1;
 /// EChatRoomEnterResponse: the lobby has no free slot.
 const ENTER_FULL: u32 = 4;
@@ -747,6 +750,12 @@ impl Lobby {
                         let at8 = u64::from_le_bytes(buf[8..16].try_into().unwrap());
                         let at4 = u64::from_le_bytes(buf[4..12].try_into().unwrap());
                         let lobby = if valid(at8) { at8 } else if valid(at4) { at4 } else { at8 };
+                        if result == RESULT_ACCESS_DENIED {
+                            return self.create_failed(
+                                lobby_type,
+                                format!("LobbyCreated EResult {result} (access denied: needs Sekiro owned on this Steam account and Steam online; use transport = udp)"),
+                            );
+                        }
                         if result != RESULT_OK || lobby == 0 {
                             return self.create_failed(lobby_type, format!("LobbyCreated EResult {result}"));
                         }

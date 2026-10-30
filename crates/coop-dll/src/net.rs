@@ -741,6 +741,10 @@ pub struct Net {
     udp_peer: Option<SocketAddr>,
     /// Shown on the status line when the session could not be opened.
     error: Option<String>,
+    /// Joiner: Steam found no host in time and there is no `udp_host_address` to fall back
+    /// to. Steam keeps searching; the status line says how to join over UDP instead (1.0.3:
+    /// before that it said "searching" forever, Nexus report 2026-10-30).
+    join_needs_address: bool,
     /// The name we send to the friend.
     own_name: String,
     /// UDP host only: UPnP result, filled by a background thread (can take seconds).
@@ -870,6 +874,7 @@ impl Net {
             steam: None,
             udp_peer: None,
             error: None,
+            join_needs_address: false,
             own_name: DEFAULT_NAME.to_owned(),
             upnp: None,
             epoch: EPOCHS.load(Ordering::Acquire),
@@ -1012,6 +1017,9 @@ impl Net {
                 if self.want != Want::Join {
                     log::line(&format!("net: UDP fallback failed: {e}"));
                     self.error = Some(format!("Steam not usable and UDP failed: {e}"));
+                } else if !self.join_needs_address {
+                    log::line(&format!("net: no host found over Steam within {} s ({why}) and no UDP address set ({e}): still searching Steam", STEAM_FALLBACK_AFTER.as_secs()));
+                    self.join_needs_address = true;
                 }
                 false
             }
@@ -1472,6 +1480,12 @@ impl Net {
             return e.clone();
         }
         if let Some(link) = &self.steam {
+            let in_lobby = link.lobby.as_ref().is_some_and(|l| l.ready());
+            if self.join_needs_address && !in_lobby {
+                return "host not found over Steam - to join over UDP, put the host's join code \
+                        (udp_join_code.txt) in udp_host_address in sekiro_coop_settings.ini"
+                    .into();
+            }
             return match (&link.lobby, &link.error) {
                 (Some(lobby), _) if lobby.ready() && self.role == RoleState::Host => {
                     "hosting - waiting for a companion (Steam)".into()

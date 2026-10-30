@@ -148,6 +148,7 @@ Crypto works too:
 
 ## Changelog
 
+- **1.0.3 beta** (2026-10-30): when Steam refuses the lobby (EResult 15: game not owned on that account or Steam offline) the status line says so; a joiner that finds no host over Steam is told to use the host's join code (udp_host_address). HOW-TO-PLAY: virtual LAN tip.
 - **1.0.2 beta** (2026-10-30): clean public build: no test-only code (log streaming between players, DLL push from the host, launcher update scripts), no local paths in the DLL, version info in the file properties. No play.cmd any more: double-click `sekiro-coop.me3` (me3 opens it).
 - **1.0.1 beta** (2026-10-30): the mod sometimes never started (no co-op text, no ini; log said `SprjTaskImp not found: InvalidRva`). It now waits for the game instead of giving up.
 - **1.0 beta** (2026-10-28): first public release. Internally this is build 8.62; the dev log in `docs/JATKA-TASTA-MULTIPLAYER.md` uses those 8.x numbers.
