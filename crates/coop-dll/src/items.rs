@@ -82,7 +82,11 @@ const CHECK_EVERY: Duration = Duration::from_secs(1);
 const COOLDOWN: Duration = Duration::from_secs(3);
 /// After a title trip: in the world this long before `auto_connect` may connect again.
 const HOLD_RELEASE_AFTER: Duration = Duration::from_secs(3);
-/// English names of the template consumables, in order of preference.
+/// The Pellet's row. The template is found by id first: the names below only match on an
+/// English game, and the fallback row on other languages (row 61 on a Chinese game) gave
+/// items whose use never reached `OnGoodsUsed` (Nexus reports, 1.0.4).
+const TEMPLATE_ID: u32 = 3020;
+/// English names of the template consumables, in order of preference after `TEMPLATE_ID`.
 const TEMPLATE_NAMES: [&str; 2] = ["Pellet", "Ako's Sugar"];
 const TEMPLE_NAME: &str = "Dilapidated Temple";
 /// Fallback if no idol is called "Dilapidated Temple" (the place names did not resolve
@@ -225,6 +229,14 @@ pub fn solo_hint() -> String {
         STAGE_FAILED => "co-op items unavailable (see log.txt), use auto_connect = 1".into(),
         _ => "solo".into(),
     }
+}
+
+/// How good goods row `id` called `name` is as the template (lower is better).
+fn template_rank(id: u32, name: &str) -> Option<usize> {
+    if id == TEMPLATE_ID {
+        return Some(0);
+    }
+    TEMPLATE_NAMES.iter().position(|n| *n == name).map(|rank| rank + 1)
 }
 
 fn kind_of(param_id: u32) -> Option<Kind> {
@@ -534,7 +546,7 @@ fn pick_rows() -> Option<Rows> {
             continue;
         }
         let name = wide_text(name_p as *const u16);
-        if let Some(rank) = TEMPLATE_NAMES.iter().position(|n| *n == name)
+        if let Some(rank) = template_rank(id, &name)
             && template.as_ref().is_none_or(|(r, ..)| rank < *r)
         {
             template = Some((rank, id, row.clone()));
@@ -552,7 +564,7 @@ fn pick_rows() -> Option<Rows> {
         candidates.len(),
         candidates.iter().rev().take(8).collect::<Vec<_>>()
     ));
-    // Not English: a short-animation consumable with an effect, as close as we can tell.
+    // Row 3020 missing and not English: a consumable with an effect, as close as we can tell.
     if template.is_none() {
         for (id, row) in unsafe { file.rows::<EQUIP_PARAM_GOODS_ST>() } {
             if row.goods_type() == 0 && row.ref_category() == 2 && row.is_consume() && !row.is_bonfire_warp_item() && row.max_num() > 1 {
@@ -960,6 +972,14 @@ pub fn on_frame() {
 #[cfg(test)]
 mod full_tests {
     use super::*;
+
+    #[test]
+    fn the_template_is_found_by_id_in_any_language() {
+        assert_eq!(template_rank(3020, "\u{4e38}\u{836f}"), Some(0), "translated name");
+        assert_eq!(template_rank(3020, "Pellet"), Some(0));
+        assert_eq!(template_rank(61, "\u{4e38}\u{836f}"), None, "other rows only by English name");
+        assert_eq!(template_rank(7, "Ako's Sugar"), Some(2));
+    }
 
     #[test]
     fn charm_full_text_only_with_room_for_three_or_more() {
