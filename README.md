@@ -148,6 +148,7 @@ Crypto works too:
 
 ## Changelog
 
+- **1.0.5 beta** (2026-10-31): if the host and a friend had a different Kuro's Charm state, enemies had different HP on each screen (up to 1.8x). Now everyone uses the host's state during the session and you get your own back when you leave. Not tested in game yet, so tell me if it acts weird
 - **1.0.4 beta** (2026-10-30): the Bell, Charm and Thread did nothing on non-English games because the mod looked the item up by its English name. Fixed, a player confirmed it works on a Chinese game and that Steam joining works too.
 - **1.0.3 beta** (2026-10-30): if Steam won't make a lobby (you need Sekiro owned on that account and Steam online) the status text tells you now, and a joiner that can't find a host gets told to use the host's join code in udp_host_address. Also a VPN tip (Radmin, ZeroTier) in HOW-TO-PLAY.
 - **1.0.2 beta** (2026-10-30): cleaned up the public build, the DLL had some test stuff left in it (log sharing, auto update scripts). No play.cmd anymore, just double click `sekiro-coop.me3`.

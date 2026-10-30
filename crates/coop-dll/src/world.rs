@@ -140,13 +140,19 @@ pub(crate) fn per_player_state(id: u32) -> bool {
     PER_PLAYER_STATE.contains(&id)
 }
 
-/// Story phase flags (all group 0, k = 8, which `shared_ks(0)` never dumps): 8301 Interior
+/// Story phase flags (group 0, k = 8 or 6, which `shared_ks(0)` never dumps): 8301 Interior
 /// Ministry invasion (set by common event 910), 8302 Ashina burning / 2nd invasion (Demon of
 /// Hatred appear flag), 8304 Hirata 2nd memory (Owl Father appear flag), 8306 prologue (on in a
 /// new game), 8310 castle enemies of the 8302 phase [INFERRED]. Unshared, each machine ran its
 /// own phase. The host decides (`send_allowed`, `apply_flag`), the join sends the mask
 /// (`BULK_PHASE`), the client repairs drift. 8303, 8305, 8307, 8330, 8335, 9530 stay local.
-pub(crate) const STORY_PHASE: [u32; 5] = [8301, 8302, 8304, 8306, 8310];
+/// 6911 (Kuro's Charm, last) is not story but travels the same way: it picks the NG row of
+/// the enemies' SpEffects, so a difference left max HP 1.2-1.8x apart (a player's log 2026-10-30:
+/// `hp clamp` 561 vs 312). Enemies loaded before the join keep their values until the next
+/// load [ARV]. `ownworld::phase_at_restore` gives our own value back.
+pub(crate) const STORY_PHASE: [u32; 6] = [8301, 8302, 8304, 8306, 8310, 6911];
+/// The bit of 6911 in a phase mask.
+pub(crate) const CHARM_BIT: u32 = 1 << 5;
 /// Endings seen: local, logged and compared by the doctor only.
 pub(crate) const ENDINGS: [u32; 4] = [6830, 6831, 6832, 6833];
 
@@ -155,8 +161,8 @@ pub(crate) fn phase_mask(get: impl Fn(u32) -> bool) -> u32 {
     STORY_PHASE.iter().enumerate().fold(0, |m, (i, &id)| if get(id) { m | 1 << i } else { m })
 }
 
-/// The five phase flags with the value `mask` gives each.
-pub(crate) fn mask_flags(mask: u32) -> [(u32, bool); 5] {
+/// The six phase flags with the value `mask` gives each.
+pub(crate) fn mask_flags(mask: u32) -> [(u32, bool); 6] {
     std::array::from_fn(|i| (STORY_PHASE[i], mask >> i & 1 != 0))
 }
 
@@ -1311,7 +1317,7 @@ impl World {
         }
     }
 
-    /// Writes all five story phase flags from `mask` in this frame (SetEventFlag, on and off).
+    /// Writes all six story phase flags from `mask` in this frame (SetEventFlag, on and off).
     /// `known` takes the values first, so our own ring sees no news. `fm`: bank 0.
     fn apply_phase(&mut self, fm: usize, mask: u32, how: &str) {
         let was = phase_mask(|id| get_flag(fm, id));
@@ -1405,7 +1411,7 @@ impl World {
         // flags: start the change sync from scratch.
         self.known.clear();
         self.dirty.clear();
-        // The host's story phase, all five flags in this frame (ahead of the join warp).
+        // The host's story phase, all six flags in this frame (ahead of the join warp).
         match self.host_phase {
             Some(m) => self.apply_phase(fm, m, "applied"),
             None => log::line("world: no story phase from the host (older build?): ours stays"),
@@ -1929,7 +1935,7 @@ mod diff_tests {
 
     #[test]
     fn phase_mask_round_trip() {
-        for mask in 0..32u32 {
+        for mask in 0..64u32 {
             let flags = mask_flags(mask);
             let back = phase_mask(|id| flags.iter().any(|&(i, on)| i == id && on));
             assert_eq!(back, mask);
@@ -1938,6 +1944,7 @@ mod diff_tests {
         assert_eq!(phase_mask(|id| id == 8302 || id == 8306), 0b01010);
         assert_eq!(phase_names(0b01010), "8302+8306");
         assert_eq!(phase_names(0), "none");
+        assert_eq!(phase_mask(|id| id == 6911), CHARM_BIT);
         assert_eq!(decode_phase(&[1, 2, 3]), None);
     }
 
@@ -2058,12 +2065,12 @@ pub(crate) fn read_all_records(fm: usize) -> Vec<(u32, Vec<u8>)> {
     out
 }
 
-/// The five story phase flags of the active bank (bit i = `STORY_PHASE[i]`), for ownworld.rs.
+/// The six story phase flags of the active bank (bit i = `STORY_PHASE[i]`), for ownworld.rs.
 pub(crate) fn read_phase(fm: usize) -> u32 {
     phase_mask(|id| get_flag(fm, id))
 }
 
-/// Writes the five story phase flags, on and off, with SetEventFlag (ownworld.rs restore).
+/// Writes the six story phase flags, on and off, with SetEventFlag (ownworld.rs restore).
 pub(crate) fn write_phase(fm: usize, mask: u32) {
     let set: extern "C" fn(usize, u32, bool, bool) = unsafe { std::mem::transmute(base() + SET_EVENT_FLAG_RVA) };
     for (id, on) in mask_flags(mask) {

@@ -465,9 +465,13 @@ fn decode(data: &[u8]) -> Option<Saved> {
 /// phase flags are not part of the shared records, so the join snapshot never took our own
 /// away; the host's was applied separately. `mirror`: the shared world stays, so the live
 /// phase does. Otherwise: the session moved the phase (live differs from the host's mask
-/// we started the session with) -> the whole live mask, else our own.
+/// we started the session with) -> the whole live mask, else our own. Kuro's Charm is ours,
+/// not the world's, in every mode: our own unless it changed during the session.
 fn phase_at_restore(own: u32, base: u32, live: u32, mirror: bool) -> u32 {
-    if mirror || live != base { live } else { own }
+    let c = world::CHARM_BIT;
+    let story = if mirror || live & !c != base & !c { live } else { own };
+    let charm = if live & c != base & c { live } else { own };
+    story & !c | charm & c
 }
 
 // ---------------------------------------------------------------- flag bits (pure)
@@ -1396,6 +1400,15 @@ impl State {
                 a.snapshots,
                 a.backup.len()
             ));
+            // The one exception: Kuro's Charm was the host's only for the session.
+            if let (Some(own), Some(base)) = (a.own_phase, a.base_phase) {
+                let live = world::read_phase(fm);
+                let mask = phase_at_restore(own, base, live, true);
+                if mask != live {
+                    world::write_phase(fm, mask);
+                    log::line(&format!("own world: Kuro's Charm back to our own: {} (live {})", world::phase_names(mask), world::phase_names(live)));
+                }
+            }
             self.finish_restore(a.slot);
             crate::dialog::game_notice("Back in your own world. It now matches the shared world.".into(), crate::dialog::Importance::Membership, 8);
             return Some(false);
@@ -1986,6 +1999,22 @@ mod tests {
     fn phase_own_kept_when_unchanged() {
         assert_eq!(phase_at_restore(0b00001, 0b11000, 0b11000, false), 0b00001);
         assert_eq!(phase_at_restore(0, 0b00010, 0b00010, false), 0, "the host's phase goes, ours comes back");
+    }
+
+    #[test]
+    fn charm_comes_back_in_every_mode() {
+        let c = world::CHARM_BIT;
+        for mirror in [false, true] {
+            // The session left the host's value alone: our own comes back.
+            assert_eq!(phase_at_restore(0, c, c, mirror) & c, 0, "ours off");
+            assert_eq!(phase_at_restore(c, 0, 0, mirror) & c, c, "ours on");
+            // The host changed it during the session: the session's.
+            assert_eq!(phase_at_restore(0, 0, c, mirror) & c, c);
+        }
+        // A moved story phase does not take the host's charm with it.
+        assert_eq!(phase_at_restore(0, c | 0b01000, c | 0b01010, false), 0b01010);
+        // A charm change alone is not a moved story phase.
+        assert_eq!(phase_at_restore(0b00001, 0b01000, 0b01000 | c, false), 0b00001 | c);
     }
 
     #[test]

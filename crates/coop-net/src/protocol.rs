@@ -19,7 +19,9 @@ pub const MAGIC: [u8; 4] = *b"SKCO";
 /// machine of a session, so an 11 build is refused.
 /// 13 (2026-10-24): the snapshot's `hidden` byte carries bits: bit 0 hidden, bit 1 in a
 /// cutscene (`Snapshot.cutscene`). A 12 build would read a cutscene as plain hidden.
-pub const VERSION: u16 = 13;
+/// 14 (2026-10-31): Kuro's Charm (6911) joins the host-owned phase mask, bit 5. A 13 build would
+/// force the bit off on the client or never send it.
+pub const VERSION: u16 = 14;
 
 /// Session slots (PLAN-MULTIPLAYER §5.3): the host is 0, clients 1..=`MAX_PEERS`. A slot is a
 /// plain `u8` here (the dll wraps it in `peers::PeerId`).
@@ -1068,7 +1070,7 @@ pub(crate) mod tests {
         let bytes = encode(&Packet::Snapshot(s));
         // magic 4 + version 2 + kind 1 + route 2 + seq 4 + pos 12 + angle 4 + anim 4 + hp 4 + max_hp 4 + block 4
         assert_eq!(bytes[4 + 2 + 1 + 2 + 4 + 12 + 4 + 4 + 4 + 4 + 4], 0b11);
-        assert_eq!(VERSION, 13);
+        assert_eq!(VERSION, 14);
     }
 
     #[test]
