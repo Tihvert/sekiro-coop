@@ -11,8 +11,9 @@
 //!   cutscene moves the player, and the party list says "(in cutscene)";
 //! - warps, expulsions, spectate releases and the boss start gate wait for it (game.rs,
 //!   bossrules.rs, bossgate.rs);
-//! - after our own cutscene the player is put back at where it began when it fell out of the
-//!   world / ended in a block nobody is in (`Tracker`).
+//! - after our own cutscene in co-op the player is put back at where it began when it fell out
+//!   of the world in the same block (`Tracker`). A cutscene that ends in another block moved us
+//!   on purpose and is never undone (1.0.6: tutorial Genichiro -> the temple fell into the void).
 
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::{Duration, Instant};
@@ -112,13 +113,14 @@ pub struct Sample<'a> {
     pub latch: bool,
     /// (block, position) of every peer with a visible snapshot.
     pub peers: &'a [(i32, [f32; 3])],
+    /// At least one other player is in the session (solo: the tracker never moves anybody).
+    pub connected: bool,
 }
 
 /// Why the player is put back.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Why {
     Fell,
-    BlockLost,
     Death,
 }
 
@@ -126,7 +128,6 @@ impl Why {
     pub fn text(self) -> &'static str {
         match self {
             Why::Fell => "fell more than 10 m below the start",
-            Why::BlockLost => "ended in a block no peer is in",
             Why::Death => "death latch within 5 s",
         }
     }
@@ -164,12 +165,17 @@ struct After {
 }
 
 /// The decision at the check: pure. `near_peer` = a visible peer in our block within `PEER_NEAR_M`.
-pub fn decide(start: &Start, pos: [f32; 3], block: i32, peer_blocks: &[i32], near_peer: bool, latch_rose: bool) -> Option<Why> {
+///
+/// Solo, or a cutscene that ended in another block: never. Live 1.0.4 / 1.0.5 (a player's solo logs):
+/// tutorial Genichiro's cutscene ends at the Dilapidated Temple without a loading screen, the
+/// old "block nobody is in" rule wrote the Reservoir start into the temple map and the player
+/// fell into the void 33 s later. The start's coordinates mean nothing in another block.
+pub fn decide(start: &Start, pos: [f32; 3], block: i32, connected: bool, near_peer: bool, latch_rose: bool) -> Option<Why> {
+    if !connected || block != start.block {
+        return None;
+    }
     if latch_rose {
         return Some(Why::Death);
-    }
-    if block != start.block && !peer_blocks.contains(&block) {
-        return Some(Why::BlockLost);
     }
     if !near_peer && pos[1] < start.pos[1] - FELL_M {
         return Some(Why::Fell);
@@ -228,11 +234,10 @@ impl Tracker {
                 a.checked |= check_due;
                 match (s.pos, s.block) {
                     (Some(pos), Some(block)) => {
-                        let peer_blocks: Vec<i32> = s.peers.iter().map(|p| p.0).collect();
                         let near = s.peers.iter().any(|&(b, p)| b == block && game::distance(p, pos) <= PEER_NEAR_M);
-                        decide(&a.start, pos, block, &peer_blocks, near, latch_rose)
+                        decide(&a.start, pos, block, s.connected, near, latch_rose)
                     }
-                    _ if latch_rose => Some(Why::Death),
+                    // Where we are is unknown: the start may be in another block, leave it.
                     _ => None,
                 }
             } else {
@@ -317,6 +322,7 @@ impl Cutscene {
             block: f.here,
             latch: read::<u32>(module_base() + DEAD_LATCH_RVA).unwrap_or(0) != 0,
             peers: &peers,
+            connected: !f.peers.is_empty(),
         });
         if let Some(id) = out.started {
             log::line(&format!("cutscene: start id {}", id.map_or("?".to_owned(), |i| i.to_string())));
@@ -372,8 +378,13 @@ mod tests {
         t0 + Duration::from_millis(ms)
     }
 
+    /// A co-op sample (another player connected, visible or not).
     fn sample(now: Instant, active: bool, pos: [f32; 3], block: i32, latch: bool, peers: &[(i32, [f32; 3])]) -> Sample<'_> {
-        Sample { now, active, id: Some(7), pos: Some(pos), angle: 0.5, block: Some(block), latch, peers }
+        Sample { now, active, id: Some(7), pos: Some(pos), angle: 0.5, block: Some(block), latch, peers, connected: true }
+    }
+
+    fn solo(now: Instant, active: bool, pos: [f32; 3], block: i32, latch: bool) -> Sample<'static> {
+        Sample { connected: false, ..sample(now, active, pos, block, latch, &[]) }
     }
 
     #[test]
@@ -433,18 +444,44 @@ mod tests {
         assert!(t.step(&sample(at(t0, 6_500), false, low, 1100, false, &peers)).replace.is_none());
     }
 
+    /// Live 1.0.4 / 1.0.5: tutorial Genichiro's cutscene starts at the Reservoir (block 3) and
+    /// ends at the temple in another block, 50+ m lower in the old frame. Putting the Reservoir
+    /// start back dropped the player into the void. Another block is never undone, with or
+    /// without peers, whatever the height or the death latch says.
     #[test]
-    fn a_block_nobody_is_in_is_undone_but_a_peers_block_is_not() {
+    fn a_cutscene_that_ends_in_another_block_is_never_undone() {
+        let t0 = Instant::now();
+        let p0 = [-376.2, -46.1, 185.7];
+        let temple = [-120.0, -110.0, 40.0];
+        for peers in [&[][..], &[(3, p0)][..], &[(3, p0), (5, [0.0; 3])][..]] {
+            for latch in [false, true] {
+                let mut t = Tracker::default();
+                t.step(&sample(at(t0, 0), true, p0, 3, false, peers));
+                t.step(&sample(at(t0, 63_000), false, temple, 4, false, peers));
+                assert!(t.step(&sample(at(t0, 63_400), false, temple, 4, false, peers)).ended.is_some());
+                for ms in [64_000, 65_500, 66_000, 68_000] {
+                    let o = t.step(&sample(at(t0, ms), false, temple, 4, latch, peers));
+                    assert!(o.replace.is_none(), "peers {peers:?} latch {latch} at {ms} ms");
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn solo_never_moves_the_player() {
         let t0 = Instant::now();
         let p0 = [100.0, 50.0, 0.0];
-        let mut t = Tracker::default();
-        run_cutscene(&mut t, t0, p0);
-        let o = t.step(&sample(at(t0, 6_500), false, p0, 1200, false, &[(1100, p0)]));
-        assert_eq!(o.replace.map(|r| r.0), Some(Why::BlockLost));
-        let mut t = Tracker::default();
-        run_cutscene(&mut t, t0, p0);
-        let far = [900.0, 50.0, 0.0];
-        assert!(t.step(&sample(at(t0, 6_500), false, p0, 1200, false, &[(1200, far)])).replace.is_none());
+        for (pos, block, latch) in [([100.0, 20.0, 0.0], 1100, false), (p0, 1100, true), (p0, 1200, false)] {
+            let mut t = Tracker::default();
+            t.step(&solo(at(t0, 0), true, p0, 1100, false));
+            t.step(&solo(at(t0, 4_000), false, pos, block, false));
+            t.step(&solo(at(t0, 4_400), false, pos, block, false));
+            for ms in [5_000, 6_500, 8_000] {
+                assert!(t.step(&solo(at(t0, ms), false, pos, block, latch)).replace.is_none());
+            }
+        }
+        assert_eq!(decide(&Start { pos: p0, angle: 0.0, block: 1100 }, [100.0, 0.0, 0.0], 1100, false, false, true), None);
+        assert_eq!(decide(&Start { pos: p0, angle: 0.0, block: 1100 }, [100.0, 0.0, 0.0], 1100, true, false, false), Some(Why::Fell));
     }
 
     #[test]

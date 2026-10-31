@@ -537,6 +537,14 @@ impl Puppet {
             if all.is_empty() {
                 all = self.enemies.loaded_enemies(is_host);
             }
+            // Bosses and minibosses straight from the game's chr list as well: the scan list
+            // missed one after reloads and its max HP differed between the machines (1.0.6).
+            // Solo too: a boss scaled during the session goes back to its NpcParam values.
+            let loaded_bosses = crate::nsession::enemy_chrs().into_iter().filter_map(|c| {
+                let e = c.entity_id().filter(|e| (SCAN_FIRST..=2_600_000).contains(e))?;
+                (bosses.contains(&e) || crate::scaling::npc_boss(c)).then_some((e, c))
+            });
+            crate::scaling::add_missing(&mut all, loaded_bosses);
             self.scaling.apply(all.into_iter(), players, cfg, &bosses);
         }
 

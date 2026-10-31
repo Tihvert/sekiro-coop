@@ -99,6 +99,28 @@ pub fn scaled(base: i32, pct: i32, players: u32, decay: i64) -> i32 {
     (base as i64 * (100_000 + pct as i64 * w) / 100_000) as i32
 }
 
+/// The chr is a boss or miniboss by its NpcParam (2+ deathblows), as `apply` decides it.
+pub fn npc_boss(chr: Chr) -> bool {
+    read_ptr(chr.0 + CHR_PARAM_REF)
+        .and_then(|r| read_ptr(r + REF_ROW))
+        .and_then(|row| read::<i8>(row + NPC_DEATHBLOWS))
+        .is_some_and(|n| n >= 2)
+}
+
+/// Adds the `extra` chrs that `list` does not have yet (same chr or same entity).
+///
+/// Live 1.0.5 (a host's log): miniboss 1100300 was missing from the enemy scan list after
+/// death reloads, so it stayed at NpcParam HP on one machine (8522 / posture 3213) while the
+/// other had it scaled (12780 / 4820): the audit saw HP and lives differ for minutes and the
+/// fight looked out of sync. Bosses now come from the game's own chr list every second too.
+pub fn add_missing(list: &mut Vec<(i32, Chr)>, extra: impl IntoIterator<Item = (i32, Chr)>) {
+    for (entity, chr) in extra {
+        if !list.iter().any(|&(e, c)| e == entity || c == chr) {
+            list.push((entity, chr));
+        }
+    }
+}
+
 /// What the last `apply` used and wrote, for the F11 dump (read-only mirror).
 struct Mirror {
     cfg: Option<ScaleCfg>,
@@ -342,6 +364,18 @@ mod diag_tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn missing_bosses_are_added_once() {
+        let mut list = vec![(1100100, Chr(0x10)), (1100200, Chr(0x20))];
+        add_missing(&mut list, [(1100300, Chr(0x30)), (1100100, Chr(0x10)), (1100200, Chr(0x99)), (1100400, Chr(0x20))]);
+        assert_eq!(list, vec![(1100100, Chr(0x10)), (1100200, Chr(0x20)), (1100300, Chr(0x30))]);
+        add_missing(&mut list, [(1100300, Chr(0x30))]);
+        assert_eq!(list.len(), 3);
+        let mut empty = Vec::new();
+        add_missing(&mut empty, [(1100300, Chr(0x30))]);
+        assert_eq!(empty, vec![(1100300, Chr(0x30))]);
+    }
 
     #[test]
     fn config_round_trip_with_the_player_count() {
