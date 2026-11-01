@@ -148,6 +148,7 @@ Crypto works too:
 
 ## Changelog
 
+- **1.0.7 beta** (2026-11-01): if you died in a boss fight and your friend finished it, you woke up at your idol even when the game moves everyone somewhere after the boss (the Divine Dragon sends you to Ashina Castle). Now you get taken to your friend. Doors that stayed shut with no way to open them get checked after every loading screen now, not only after resting. And if your last game didn't close normally, the mod tells you how to stop a session and which logs to send. Not tested in game yet, so tell me if it acts weird
 - **1.0.6 beta** (2026-10-31): after the tutorial fight with Genichiro you could fall through the world at the temple and die. The mod put you back where the cutscene started, even though the game had moved you to another map. Fixed. Minibosses could also have different HP for the host and the friend after a death or a rest, so the fight looked out of sync. Bosses now get the same HP and posture on every machine. Not tested in game yet, so tell me if it acts weird
 - **1.0.5 beta** (2026-10-31): if the host and a friend had a different Kuro's Charm state, enemies had different HP on each screen (up to 1.8x). Now everyone uses the host's state during the session and you get your own back when you leave. Not tested in game yet, so tell me if it acts weird
 - **1.0.4 beta** (2026-10-30): the Bell, Charm and Thread did nothing on non-English games because the mod looked the item up by its English name. Fixed, a player confirmed it works on a Chinese game and that Steam joining works too.

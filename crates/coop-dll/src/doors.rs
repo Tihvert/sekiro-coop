@@ -22,7 +22,8 @@
 //!    is put back ON at once without telling the friend (world.rs `write_quiet`);
 //! 3. guard (receiver): a friend's OFF for a known door flag that is ON here is ignored
 //!    (vanilla doors never close again; world.rs `apply_flag`);
-//! 4. after every rest all loaded doors whose flag is on are checked once.
+//! 4. after every rest and every loading screen all loaded doors whose flag is on are
+//!    checked (twice each).
 //!
 //! "Known door flag": the flag of a flag-bearing ObjAct state found by the walker, or,
 //! as a fallback for ObjActs whose state keeps no flag (`SprjObjActOneState`, flag
@@ -98,6 +99,10 @@ const RUN_EXECUTING: u32 = 3;
 const REPLAY_DELAY: Duration = Duration::from_millis(300);
 /// Doors are checked this long after a rest (twice, see restsync.rs).
 const AFTER_REST: [Duration; 2] = [Duration::from_millis(2500), Duration::from_millis(7500)];
+/// ...and this long after every loading screen (`in_world_for`; `tick` only runs once the
+/// world settled, 5 s). Issue #2 (2026-10-31): after the Isshin wipe reload a door by the
+/// idol was closed with no "open" prompt; doors were only checked after rests.
+const AFTER_LOAD: [Duration; 2] = [Duration::from_secs(6), Duration::from_secs(12)];
 /// A pending door flag that never finds a loaded closed door is dropped after this.
 const PENDING_FOR: Duration = Duration::from_secs(5);
 /// Fallback: a friend ON flag counts as a door flag when it arrives this long after the
@@ -107,7 +112,9 @@ const OBJACT_FLAG_AFTER: Duration = Duration::from_secs(6);
 const OBJACT_FLAG_BEFORE: Duration = Duration::from_millis(1500);
 /// Guards 2/3 are off this long after any rest (rest-reset flags go off legitimately).
 const REST_QUIET: Duration = Duration::from_secs(15);
-const MAX_LOG: u32 = 60;
+/// Door lines per load or rest. A lifetime cap of 60 was used up after 3 h in issue #2's
+/// logs and hid every door event of the last 4 h.
+const MAX_LOG: u32 = 20;
 /// Sanity caps for the walk (garbage pointers must not make it loop forever).
 const MAX_BLOCKS: u32 = 64;
 const MAX_INFOS: i32 = 4096;
@@ -335,6 +342,8 @@ struct State {
     last_in_world: Duration,
     rest_seen: Option<Instant>,
     rest_checks: usize,
+    /// Checks done since the last loading screen (`AFTER_LOAD`).
+    load_checks: usize,
     replays: u32,
     kept_on: u32,
     ignored_off: u32,
@@ -561,7 +570,10 @@ pub fn tick(peer_anims: &[(u8, i32)], in_world_for: Duration) {
     // 0. The peers' ObjAct animations (fallback door flags) and our loads.
     let started = with(|s| {
         if in_world_for < s.last_in_world {
+            // A loading screen: walk again, check the doors again, a fresh log budget.
             s.scan_due = true;
+            s.load_checks = 0;
+            s.logged = 0;
         }
         s.last_in_world = in_world_for;
         let started: Vec<i32> = peer_anims
@@ -612,24 +624,37 @@ pub fn tick(peer_anims: &[(u8, i32)], in_world_for: Duration) {
             s.pending.retain(|&(_, t)| now.duration_since(t) < PENDING_FOR);
         });
     }
-    // 4. After a rest: every loaded door whose flag is on must be open.
+    // 4. After a rest or a loading screen: every loaded door whose flag is on must be open.
     let rest = crate::restsync::last_rest();
-    let check = with(|s| {
+    let (after_rest, after_load) = with(|s| {
         if rest != s.rest_seen {
             s.rest_seen = rest;
             s.rest_checks = 0;
+            s.logged = 0;
         }
-        s.rest_checks < AFTER_REST.len() && rest.is_some_and(|t| now.duration_since(t) >= AFTER_REST[s.rest_checks])
+        let after_rest = rest.is_some_and(|t| check_due(s.rest_checks, now.duration_since(t), &AFTER_REST));
+        let after_load = check_due(s.load_checks, in_world_for, &AFTER_LOAD);
+        s.rest_checks += usize::from(after_rest);
+        s.load_checks += usize::from(after_load);
+        (after_rest, after_load)
     });
-    if check {
+    if after_rest || after_load {
+        let (why, when) = if after_rest { ("after a rest", "the rest") } else { ("after a load", "the load") };
         let all = doors();
         with(|s| {
-            s.rest_checks += 1;
             let on = all.iter().filter(|d| crate::game::event_flag(d.flag) == Some(true)).count();
-            let opened = all.iter().filter(|d| open_if_closed(s, d, "after a rest")).count();
-            note_log(s, || format!("doors: after the rest: {} doors loaded, {on} with the flag on, {opened} were closed and opened again", all.len()));
+            let opened = all.iter().filter(|d| open_if_closed(s, d, why)).count();
+            // Nothing to say when no loaded door has its flag on (these filled the old budget).
+            if on > 0 {
+                note_log(s, || format!("doors: after {when}: {} doors loaded, {on} with the flag on, {opened} were closed and opened again", all.len()));
+            }
         });
     }
+}
+
+/// Is the `done`-th check of a series (`at`: its times after the start) due `since` the start?
+fn check_due(done: usize, since: Duration, at: &[Duration]) -> bool {
+    at.get(done).is_some_and(|&t| since >= t)
 }
 
 #[cfg(test)]
@@ -773,6 +798,23 @@ mod tests {
         assert!(!ignore_off_decision(false, None, true, false));
         assert!(!ignore_off_decision(false, Some(true), false, false));
         assert!(!ignore_off_decision(false, Some(true), true, true));
+    }
+
+    #[test]
+    fn door_checks_after_rests_and_loads() {
+        let s = Duration::from_secs;
+        // After a load (in_world_for): at 6 s and 12 s, each once, in order.
+        assert!(!check_due(0, s(5), &AFTER_LOAD));
+        assert!(check_due(0, s(6), &AFTER_LOAD));
+        assert!(!check_due(1, s(11), &AFTER_LOAD));
+        assert!(check_due(1, s(12), &AFTER_LOAD));
+        assert!(!check_due(2, s(600), &AFTER_LOAD));
+        // The world settled late (the tick starts after both times): one check per tick.
+        assert!(check_due(0, s(30), &AFTER_LOAD) && check_due(1, s(30), &AFTER_LOAD));
+        // After a rest: 2.5 s and 7.5 s.
+        assert!(!check_due(0, Duration::from_millis(2400), &AFTER_REST));
+        assert!(check_due(0, Duration::from_millis(2500), &AFTER_REST));
+        assert!(!check_due(2, s(60), &AFTER_REST));
     }
 
     #[test]

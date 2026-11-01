@@ -173,6 +173,21 @@ fn init(hmodule: usize) {
     ));
     // The settings file first: fps and observe read it when they install.
     settings::init();
+    // The previous run's log says whether it ended normally (log.rs, read before the header wrote).
+    // Shown in the overlay once in the world; it does not wrap, hence the line breaks.
+    match log::previous_end() {
+        log::PrevEnd::NoExitLine => bossrules::notice(
+            "Last time the game didn't close normally.\nTo stop: Severed Thread first, then Quit Game.\nFroze or crashed? Send log.txt and log.old.txt."
+                .to_string(),
+            30,
+        ),
+        log::PrevEnd::Crash => bossrules::notice(
+            "The game crashed last time.\nPlease send log.txt and log.old.txt\nfrom %LOCALAPPDATA%\\sekiro-coop".to_string(),
+            30,
+        ),
+        // A clean exit, or no log to read: nothing to report.
+        log::PrevEnd::Clean | log::PrevEnd::NoLog => {}
+    }
     // Launcher scripts next to the DLL kept current (a friend's old update.ps1 only fetches the DLL).
     #[cfg(feature = "testsync")]
     shipfiles::start();

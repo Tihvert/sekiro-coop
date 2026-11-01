@@ -2,9 +2,9 @@
 
 use std::fs::{self, File, OpenOptions};
 use std::fmt::Write as _;
-use std::io::Write;
+use std::io::{Read, Seek, SeekFrom, Write};
 use std::path::PathBuf;
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -163,11 +163,70 @@ fn clock_line(secs: u64) {
     muted_summary(secs);
 }
 
-/// First lines of a run: mod version, build id, wall clock. Called once at DLL start.
+/// How the previous run ended: read from the tail of log.txt before this run writes anything.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum PrevEnd {
+    /// No earlier log to read.
+    NoLog,
+    /// An `EVENT SESSION_END ...` line: the process ended through our code.
+    Clean,
+    /// `EVENT SESSION_END crash`: the unhandled-exception filter ran.
+    Crash,
+    /// A session start with no SESSION_END after it: killed (Task Manager) or a crash that ran no code.
+    NoExitLine,
+}
+
+/// What the tail of the log was when this run started (`session_header`, once).
+static PREV_END: OnceLock<PrevEnd> = OnceLock::new();
+
+/// How the previous run ended (`NoLog` until the session header has read the log).
+pub fn previous_end() -> PrevEnd {
+    *PREV_END.get().unwrap_or(&PrevEnd::NoLog)
+}
+
+/// The last 64 KB of the log as text (empty when there is no log).
+fn read_tail() -> String {
+    const TAIL_BYTES: u64 = 64 << 10;
+    let Ok(mut f) = File::open(path()) else {
+        return String::new();
+    };
+    let len = f.metadata().map(|m| m.len()).unwrap_or(0);
+    // A cut in the middle of a UTF-8 sequence costs one replacement character in the lossy read.
+    if len > TAIL_BYTES && f.seek(SeekFrom::Start(len - TAIL_BYTES)).is_err() {
+        return String::new();
+    }
+    let mut buf = Vec::new();
+    if f.take(TAIL_BYTES).read_to_end(&mut buf).is_err() {
+        return String::new();
+    }
+    String::from_utf8_lossy(&buf).into_owned()
+}
+
+/// Classifies the tail of the previous log: only the last session counts (an older SESSION_END
+/// belongs to a run that ended days ago).
+fn classify_previous(tail: &str) -> PrevEnd {
+    const START: &str = "==== sekiro-coop session start ====";
+    if tail.trim().is_empty() {
+        return PrevEnd::NoLog;
+    }
+    let run = tail.rfind(START).map_or(tail, |i| &tail[i..]);
+    if run.contains("EVENT SESSION_END crash") {
+        PrevEnd::Crash
+    } else if run.contains("EVENT SESSION_END") {
+        PrevEnd::Clean
+    } else {
+        PrevEnd::NoExitLine
+    }
+}
+
+/// First lines of a run: mod version, build id, wall clock, how the previous run ended. Called once at DLL start.
 pub fn session_header() {
     let secs = now_secs();
     let built: u64 = env!("COOP_BUILD_EPOCH").parse().unwrap_or(0);
     let off = local_utc_offset_secs();
+    // Before the first write: it opens the file and may move it to log.old.txt.
+    let prev = classify_previous(&read_tail());
+    let _ = PREV_END.set(prev);
     write_raw(secs, "==== sekiro-coop session start ====");
     write_raw(
         secs,
@@ -180,6 +239,13 @@ pub fn session_header() {
     );
     clock_line(secs);
     event("SESSION_START", &format!("build={}", env!("COOP_GIT_HASH")));
+    let ended = match prev {
+        PrevEnd::Clean => "clean exit",
+        PrevEnd::Crash => "crashed",
+        PrevEnd::NoExitLine => "no exit line (closed from Task Manager or a crash that ran no code)",
+        PrevEnd::NoLog => "no earlier log",
+    };
+    write_raw(secs, &format!("log: previous run: {ended}"));
 }
 
 #[cfg(test)]
@@ -208,6 +274,40 @@ mod tests {
     fn local_offset_is_sane() {
         let o = local_utc_offset_secs();
         assert!((-14 * 3600..=14 * 3600).contains(&o));
+    }
+
+    #[test]
+    fn previous_run_without_a_log() {
+        assert_eq!(classify_previous(""), PrevEnd::NoLog);
+        assert_eq!(classify_previous("  \r\n\t "), PrevEnd::NoLog);
+    }
+
+    #[test]
+    fn previous_run_that_closed_normally() {
+        let tail = "[1] ==== sekiro-coop session start ====\n[1] version: sekiro_coop v1.0.7\n[9] EVENT SESSION_END exit: the game process is exiting normally (ExitProcess)\n";
+        assert_eq!(classify_previous(tail), PrevEnd::Clean);
+    }
+
+    #[test]
+    fn previous_run_that_crashed() {
+        let tail = "[1] ==== sekiro-coop session start ====\n[9] EVENT SESSION_END crash: access violation at 0x7ff6\n";
+        assert_eq!(classify_previous(tail), PrevEnd::Crash);
+    }
+
+    #[test]
+    fn previous_run_that_was_killed() {
+        assert_eq!(classify_previous("[1] ==== sekiro-coop session start ====\n[9] coop: dll attached\n"), PrevEnd::NoExitLine);
+    }
+
+    #[test]
+    fn only_the_last_session_counts() {
+        let tail = "[1] ==== sekiro-coop session start ====\n[9] EVENT SESSION_END exit: the game process is exiting normally (ExitProcess)\n[1] ==== sekiro-coop session start ====\n[9] coop: dll attached\n";
+        assert_eq!(classify_previous(tail), PrevEnd::NoExitLine);
+    }
+
+    #[test]
+    fn tail_without_a_session_start() {
+        assert_eq!(classify_previous("[9] EVENT SESSION_END exit: the game process is exiting normally (ExitProcess)\n"), PrevEnd::Clean);
     }
 }
 

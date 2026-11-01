@@ -826,8 +826,11 @@ impl Puppet {
             // The join warp waits for the host's flag dump (world.rs), so the
             // reload builds the map from the host's world state.
             let hold = self.world.join_hold(n.epoch());
-            let host_loaded = host_frame.map_or_else(|| n.friend_loaded_recently(10), |h| h.loaded_recently(10));
-            let warped = self.join.on_frame(player, n.epoch(), &r, n.is_client(), host_loaded, in_world_since.elapsed(), hold);
+            let loaded_within = |secs| host_frame.map_or_else(|| n.friend_loaded_recently(secs), |h| h.loaded_recently(secs));
+            let host_loaded = loaded_within(10);
+            // A boss fell while we were dead: has the friend had a loading screen since (its post-boss warp)?
+            let boss_warp = crate::join::boss_fell_while_dead_secs().is_some_and(loaded_within);
+            let warped = self.join.on_frame(player, n.epoch(), &r, n.is_client(), host_loaded, in_world_since.elapsed(), hold, boss_warp);
             if let Some(idol) = self.join.take_rest_request() {
                 self.world.silent_rest(idol);
             }

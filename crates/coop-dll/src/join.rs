@@ -12,6 +12,7 @@
 //! Player teleport inside a block: write the physics position directly, as
 //! SekiroTool's `RestorePos` does for the player.
 
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, Instant};
 
 use crate::game::{self, Chr, WarpGate};
@@ -54,6 +55,35 @@ const FOLLOW_CONFIRM: Duration = Duration::from_secs(6);
 /// client's link timed out and came back 9 s later; the join logic took it for
 /// a first join and warped the client to the host's idol.
 const RECONNECT_RESUME: Duration = Duration::from_secs(120);
+/// A boss that fell while we were dead (`note_boss_fell_while_dead`) is followed up for this
+/// long: the friend's next loading screen into another block is the game's post-boss warp.
+const BOSS_WARP_WINDOW_MS: u64 = 60_000;
+
+/// `game::now_ms` when a boss fell while we waited dead (bossrules.rs release), 0 = none.
+static BOSS_FELL_DEAD_MS: AtomicU64 = AtomicU64::new(0);
+
+/// bossrules.rs: we were dead when the boss fell; our held death reload runs now, while the
+/// game may warp the living killer on (issue #2, 2026-10-31: Divine Dragon -> Ashina Castle).
+pub(crate) fn note_boss_fell_while_dead() {
+    BOSS_FELL_DEAD_MS.store(game::now_ms(), Ordering::Relaxed);
+}
+
+/// Seconds since that boss fell, inside the window (puppet.rs: did the friend load since?).
+pub(crate) fn boss_fell_while_dead_secs() -> Option<u64> {
+    boss_window_secs(BOSS_FELL_DEAD_MS.load(Ordering::Relaxed), game::now_ms())
+}
+
+/// Whole seconds from `at` to `now` (ms) while inside the window; `at == 0` = no boss.
+fn boss_window_secs(at: u64, now: u64) -> Option<u64> {
+    let since = now.saturating_sub(at);
+    (at > 0 && since <= BOSS_WARP_WINDOW_MS).then_some(since / 1000)
+}
+
+/// Follow the friend's post-boss warp now? `boss_warp`: a boss fell while we were dead and
+/// the friend had a loading screen since; `apart_for`: how long it has been in another block.
+fn follow_boss_warp(boss_warp: bool, done: bool, apart_for: Option<Duration>, host_recently_died: bool) -> bool {
+    boss_warp && done && !host_recently_died && apart_for.is_some_and(|d| d.as_secs_f32() > OTHER_BLOCK_GRACE_SECS)
+}
 
 /// Is a new connection a resume of the previous one (short link drop)?
 /// `gap`: time since the previous connection's last frame, `prev_done`: that
@@ -108,6 +138,8 @@ pub struct Join {
     last_frame_at: Option<Instant>,
     /// net.rs `session_gen` at that frame.
     last_frame_gen: u64,
+    /// Since when the friend is in another block (the post-boss follow's grace).
+    apart_since: Option<Instant>,
 }
 
 impl Join {
@@ -143,6 +175,7 @@ impl Join {
     /// the caller must let go of every character pointer now).
     /// `hold`: do not start a join/follow warp yet (the host's world state
     /// is still on its way, world.rs `join_hold`; it has its own timeout).
+    /// `boss_warp`: a boss fell while we were dead and the friend had a loading screen since.
     #[allow(clippy::too_many_arguments)]
     pub fn on_frame(
         &mut self,
@@ -153,8 +186,11 @@ impl Join {
         friend_loaded: bool,
         in_world_for: Duration,
         hold: bool,
+        boss_warp: bool,
     ) -> bool {
-        if host.hp <= 0 {
+        // A hidden snapshot (the friend's loading screen, net.rs) carries hp 0: not a death,
+        // or every warp of theirs read as a death respawn for 30 s.
+        if host.hp <= 0 && !host.hidden {
             self.host_dead_at = Some(Instant::now());
         }
         let host_recently_died = self.host_dead_at.is_some_and(|t| t.elapsed().as_secs() < 30);
@@ -183,6 +219,25 @@ impl Join {
         self.last_frame_at = Some(Instant::now());
         self.last_frame_gen = crate::net::session_gen();
         let here = game::current_block();
+
+        // Issue #2 (2026-10-31): we were dead when the Divine Dragon fell, our held death reload
+        // put us at the Fountainhead idol, and the game warped the living killer to Ashina
+        // Castle. Its warp is followed once, auto_follow or not.
+        let apart_for = if here == Some(host.block) {
+            self.apart_since = None;
+            None
+        } else {
+            Some(self.apart_since.get_or_insert_with(Instant::now).elapsed())
+        };
+        if follow_boss_warp(boss_warp, matches!(self.state, State::Done), apart_for, host_recently_died) {
+            log::line(&format!(
+                "join: a boss fell while we were dead and the friend was moved on to block {} (we are in {here:?}): following",
+                host.block
+            ));
+            BOSS_FELL_DEAD_MS.store(0, Ordering::Relaxed);
+            self.follow_pending = None;
+            self.state = State::Idle;
+        }
 
         // While "with the host", watch for the host leaving us behind.
         let settled = self.last_move.is_none_or(|t| t.elapsed().as_secs() >= 15)
@@ -366,5 +421,29 @@ mod tests {
         assert!(!is_reconnect_resume(true, true, true, None));
         // Live 2026-10-24: Severed Thread, then Kindred Charm 36 s later = a new join.
         assert!(!is_reconnect_resume(true, true, false, Some(Duration::from_secs(36))));
+    }
+
+    #[test]
+    fn post_boss_warp_is_followed_once_the_friend_stays_apart() {
+        let apart = Some(Duration::from_secs(4));
+        assert!(follow_boss_warp(true, true, apart, false));
+        // Only after a boss fell while we were dead and the friend loaded since.
+        assert!(!follow_boss_warp(false, true, apart, false));
+        // Not during another join / warp of ours.
+        assert!(!follow_boss_warp(true, false, apart, false));
+        // Same block, or apart for less than the grace (its snapshot may still be mid-load).
+        assert!(!follow_boss_warp(true, true, None, false));
+        assert!(!follow_boss_warp(true, true, Some(Duration::from_secs(2)), false));
+        // The friend's load was its own death respawn.
+        assert!(!follow_boss_warp(true, true, apart, true));
+    }
+
+    #[test]
+    fn boss_window_closes() {
+        assert_eq!(boss_window_secs(0, 5_000), None);
+        assert_eq!(boss_window_secs(1_000, 1_000), Some(0));
+        assert_eq!(boss_window_secs(1_000, 9_500), Some(8));
+        assert_eq!(boss_window_secs(1_000, 61_000), Some(60));
+        assert_eq!(boss_window_secs(1_000, 61_001), None);
     }
 }

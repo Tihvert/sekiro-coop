@@ -2222,6 +2222,10 @@ impl BossRules {
         let secs = self.spec_since.map_or(0, |t| t.elapsed().as_secs());
         log::line(&format!("spectate: release {reason} after {secs} s"));
         self.defeat_wait = None;
+        // Our held death reload runs below; a post-boss warp of the killer is followed (join.rs).
+        if reason == "boss defeated" {
+            crate::join::note_boss_fell_while_dead();
+        }
         // Every peer we waited for died. A session wipe only when that is every connected
         // peer (two players: always); a living peer elsewhere keeps the world (persist rule).
         if reason == "wipe" && peers.iter().all(|p| self.watch.contains_key(&p.id)) {
