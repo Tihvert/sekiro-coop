@@ -104,7 +104,7 @@ Other mods haven't been tested with this. Stuff that doesn't touch multiplayer o
 [b]Kindred Charm[/b] - find the host's world and join it
 [b]Severed Thread[/b] - leave co-op
 [*] Host uses the Bell, everyone else uses the Charm. Connection status is in the top left corner.
-[*] To stop, use the Severed Thread or quit to the title screen.
+[*] To stop, everyone uses the Severed Thread (joiners first, host last), then Quit Game or Alt+F4. Quit Game is greyed out while you're still in co-op, that's on purpose. Don't close the game from Task Manager unless it's frozen, then the log can't tell me if it crashed or not.
 [/list]
 
 Settings: edit the ini or use Options > Co-op Settings in game.
