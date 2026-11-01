@@ -30,7 +30,7 @@ Crypto: [b]BTC[/b] bc1qlytmy276zcsqw8dw2u43ywh7nuaf7qhufjrrh3 / [b]LTC[/b] LNgso
 [size=5][b]About[/b][/size]
 
 [size=4][b]Co-op[/b][/size]
-Basically Elden Ring Seamless Co-op but for Sekiro. You and up to 5 friends (2-6 players) play in the same world from the temple to the credits. You see each other as real player characters with name, ping and gear, fight the same enemies and bosses, and the session keeps going through deaths, idol warps and loading screens.
+Like the Elden Ring co-op mods, but for Sekiro. You and up to 5 friends (2-6 players) play in the same world from the temple to the credits. You see each other as real player characters with name, ping and gear, fight the same enemies and bosses, and the session keeps going through deaths, idol warps and loading screens.
 
 [list]
 [*] One host, everyone else joins the host's world.
