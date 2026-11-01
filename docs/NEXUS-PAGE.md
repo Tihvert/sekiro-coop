@@ -1,21 +1,22 @@
 # Nexus Mods page (copy-paste)
 
-Repo and Ko-fi links are already filled in. Category: Gameplay. Upload `sekiro-seamless-coop-v1.0-beta.zip` as the main file (version 1.0-beta), the 4 pics from `media/` as images.
+Repo and Ko-fi links are already filled in. Category: Gameplay. Upload `sekiro-together-v1.0-beta.zip` as the main file (version 1.0-beta), the 4 pics from `media/` as images.
 
 ## Name
 
-Sekiro Seamless Co-op
+Sekiro Together
 
 ## Summary (max 350 characters)
 
-Seamless co-op for Sekiro, Elden Ring Seamless Co-op style. 2-6 players in the same world, shared enemies and bosses, the session survives deaths, warps and loading screens. Beta and still buggy. Open source on GitHub so anyone can keep working on it. Needs me3 and Sekiro 1.06.
+Co-op for Sekiro, Elden Ring Seamless Co-op style. 2-6 players in the same world, shared enemies and bosses, the session survives deaths, warps and loading screens. Beta and still buggy. Open source on GitHub so anyone can keep working on it. Needs me3 and Sekiro 1.06.
 
 ## Description (BBCode)
 
 ```bbcode
-[size=6][b]Sekiro Seamless Co-op[/b][/size]
+[size=6][b]Sekiro Together[/b][/size]
+(used to be called Sekiro Seamless Co-op. Not affiliated with LukeYui or her Seamless Co-op mods.)
 
-[b]Read this before you install.[/b] The mod is a beta and it's still buggy. Me and my buddy played a lot with it and most stuff works, but you're gonna run into jank. Back up your saves. If you're looking for a bug free experience, this isn't it (yet).
+[b]Read this before you install.[/b] The mod is a beta and it's still buggy. Me and my buddy played a lot with it and most stuff works, but you're gonna run into jank. Back up your saves. Only play with people you trust: Sekiro never got the netcode security patches the other souls games got. If you're looking for a bug free experience, this isn't it (yet).
 
 I already beat the game so my motivation to keep building this dropped a lot. I might still come back to it at some point, no promises. That's why the whole thing is open source, including all my debugging notes and tools. If you want to keep going with it, fork it, fix stuff, send PRs, make your own version, go for it.
 
@@ -28,7 +29,7 @@ Crypto: [b]BTC[/b] bc1qlytmy276zcsqw8dw2u43ywh7nuaf7qhufjrrh3 / [b]LTC[/b] LNgso
 
 [size=5][b]About[/b][/size]
 
-[size=4][b]Seamless co-op[/b][/size]
+[size=4][b]Co-op[/b][/size]
 Basically Elden Ring Seamless Co-op but for Sekiro. You and up to 5 friends (2-6 players) play in the same world from the temple to the credits. You see each other as real player characters with name, ping and gear, fight the same enemies and bosses, and the session keeps going through deaths, idol warps and loading screens.
 
 [list]

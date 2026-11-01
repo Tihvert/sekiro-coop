@@ -1,8 +1,8 @@
-![Sekiro Seamless Co-op](media/banner.jpg)
+![Sekiro Together](media/banner.jpg)
 
-# Sekiro Seamless Co-op
+# Sekiro Together
 
-Seamless co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring Seamless Co-op mod but for Sekiro. You and your friends (2-6 players) play in the same world, fight the same enemies and bosses, and the session doesn't die when someone dies, warps or hits a loading screen.
+Co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring Seamless Co-op mod but for Sekiro. You and your friends (2-6 players) play in the same world, fight the same enemies and bosses, and the session doesn't die when someone dies, warps or hits a loading screen. (It used to be called Sekiro Seamless Co-op, renamed so nobody mixes it up with LukeYui's mods.)
 
 ![two players at the Fountainhead Palace overlook](media/overlook.jpg)
 
@@ -11,6 +11,8 @@ Seamless co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring 
 ## Heads up, read this first
 
 **The mod is still buggy.** It's a beta. Me and my buddy played a lot with it and most stuff works, but there's plenty of jank left (list below). Back up your saves.
+
+**Only play with people you trust.** Sekiro never got the netcode security patches the other souls games got, and this mod runs the game's own online code between players. Co-op stays off until you set a password, and only people with the same password can join you.
 
 I already beat the game so my motivation to keep building this dropped a lot. I might still come back to it at some point, no promises. That's why it's open source now: if you want to keep going with it, fork it, fix stuff, send PRs, make your own version, whatever. Everything I have that's useful for debugging is in here too (see [For devs](#for-devs)).
 
@@ -161,4 +163,4 @@ Crypto works too:
 
 My code is MIT, see [LICENSE](LICENSE). `vendor/sekiro` keeps its own license (MIT NON-AI OR Apache NON-AI, files in that folder), which among other things means that code can't be used in AI training datasets.
 
-Unofficial fan mod. Not affiliated with FromSoftware, Activision or Valve. It doesn't touch the official online mode. Use at your own risk and back up your saves.
+Unofficial fan mod. Not affiliated with FromSoftware, Activision or Valve, and not affiliated with LukeYui or her Seamless Co-op mods. It doesn't touch the official online mode. Use at your own risk and back up your saves.
