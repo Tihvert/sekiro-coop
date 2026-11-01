@@ -33,6 +33,15 @@ PLAYING
 3. Host uses the Bell, others use the Charm. Status is in the top left corner.
 4. Settings: the ini file or Options > Co-op Settings in game.
 
+STOPPING
+1. Everyone uses the Severed Thread, joiners first and host last.
+   Joiners get a loading screen and are back in their own world.
+2. Then Quit Game from the menu, or Alt+F4.
+Quit Game is greyed out while you're still in co-op, that's on purpose.
+Don't close the game from Task Manager unless it's frozen. Then the log
+can't tell me if it crashed or not. If it froze or crashed, say so in your
+report and send log.txt and log.old.txt.
+
 CONNECTION
 Steam by default, falls back to direct UDP after 15 s. Steam lobbies only work
 when Sekiro is owned on that Steam account and Steam is online; otherwise use UDP.

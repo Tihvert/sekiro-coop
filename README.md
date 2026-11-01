@@ -73,7 +73,7 @@ Steps:
    - **Kindred Charm**: find the host's world and join it
    - **Severed Thread**: leave co-op
 3. Host uses the Bell, everyone else uses the Charm. The top left corner shows connection status.
-4. To stop, use the Severed Thread or just quit to the title screen.
+4. To stop, everyone uses the Severed Thread (joiners first, host last), then Quit Game from the menu or Alt+F4. Quit Game is greyed out while you're still in co-op, that's on purpose. Don't close the game from Task Manager unless it's frozen, then the log can't tell me if it crashed or not.
 
 ![the co-op items](media/kindred-items.jpg)
 
