@@ -18,12 +18,12 @@ You do **not** need the `WINEDLLOVERRIDES="dinput8.dll=n,b" %command%` launch op
    ```bash
    curl --proto '=https' --tlsv1.2 -sSfL https://github.com/garyttierney/me3/releases/latest/download/installer.sh | sh
    ```
-   It puts `me3` in `~/.local/bin`. If it says "me3 is not available on PATH", that's not an error, the install worked. `play.sh` finds it there anyway.
+   It puts `me3` in `~/.local/bin`. If it says "me3 is not available on PATH", that's not an error, the install worked.
 4. Unzip the mod somewhere in your home folder, for example `~/Games/sekiro-together`. **Not** the game folder.
 5. With Steam running, start it once:
    ```bash
    cd ~/Games/sekiro-together
-   sh play.sh
+   ~/.local/bin/me3 launch -p "$PWD/sekiro-coop.me3"
    ```
    The game starts with the mod. Close it. `sekiro_coop_settings.ini` shows up next to `sekiro_coop.dll`.
    Double-clicking `sekiro-coop.me3` in the file manager should work too (me3 registers `.me3` files), but maybe only after you log out and back in once.
@@ -32,12 +32,12 @@ You do **not** need the `WINEDLLOVERRIDES="dinput8.dll=n,b" %command%` launch op
 
 ## Playing
 
-Same as on Windows (see HOW-TO-PLAY.txt), just start it with `sh play.sh` every time. Starting Sekiro from the Steam library button starts the game **without** the mod.
+Same as on Windows (see HOW-TO-PLAY.txt), just start it with the command from step 5 every time. Starting Sekiro from the Steam library button starts the game **without** the mod.
 
 ## Steam Deck
 
 - Do the install in **Desktop Mode** (Konsole for the commands, Kate or any text editor for the ini).
-- Playing in Desktop Mode with `sh play.sh` is the way me3 supports.
+- Playing in Desktop Mode with the command from step 5 is the way me3 supports.
 - Game Mode is untested. What should work: in Desktop Mode, Steam > Games > Add a Non-Steam Game > Browse, pick `/home/deck/.local/bin/me3` (switch the file type to all files). Then in that shortcut's Properties set the launch options to `launch -p "/home/deck/Games/sekiro-together/sekiro-coop.me3"` and leave Compatibility off (me3 is a Linux program, it starts Proton itself). If you try it, tell me if it works.
 - F11 marks a bug in the log. On the Deck use the View button (the one left of the screen, it's Back on an Xbox pad).
 - The mod unlocks the game to 120 fps. If the Deck gets hot or the battery drains fast, set `fps_unlock = 0` in the ini for the normal 60.
@@ -67,13 +67,13 @@ Back up `AppData/Roaming/Sekiro` before playing, same as on Windows.
 
 ## If it doesn't start
 
-- **`me3: command not found`**: use `sh play.sh`, or add `export PATH="$PATH:$HOME/.local/bin"` to the end of `~/.bashrc` (Deck: `~/.bash_profile`) and open a new terminal.
+- **`me3: command not found`**: use the full path `~/.local/bin/me3`, or add `export PATH="$PATH:$HOME/.local/bin"` to the end of `~/.bashrc` (Deck: `~/.bash_profile`) and open a new terminal.
 - **"unable to determine Proton runtime" or "unable to find installation of Proton runtime"**: Steam > Sekiro > Properties > Compatibility > tick "Force the use of a specific Steam Play compatibility tool", pick Proton Experimental (or another recent Proton), start the game once from Steam, try again.
 - **"Couldn't find a valid steam installation"** or me3 picks the wrong Steam (you have both native and Flatpak Steam): put `steam_dir = "/home/<you>/.local/share/Steam"` in `~/.config/me3/me3.toml`.
 - **Steam not running**: start Steam first. me3 needs it.
 - **Game starts but no co-op stuff, no ini file**: check `sekiro_coop.dll` and `sekiro-coop.me3` are in the same folder, then send me what the terminal printed.
 - **"Wrong Sekiro version" notice**: the mod only works with Steam 1.06, unmodded.
-- **Game starts without the mod**: you started it from the Steam library. Use `sh play.sh`.
+- **Game starts without the mod**: you started it from the Steam library. Use the command from step 5.
 
 ## Connecting
 

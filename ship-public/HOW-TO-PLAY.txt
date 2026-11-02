@@ -64,11 +64,12 @@ Not tested on Linux by me yet. me3 supports Linux and the Deck through
 Proton, so it should work. Tell me if it does or doesn't.
 No WINEDLLOVERRIDES launch option needed, that's only for Sekiro Online.
 1. Start Sekiro once from Steam normally, quit at the main menu.
-2. Install me3 in a terminal (Deck: Desktop Mode, Konsole):
-   curl --proto '=https' --tlsv1.2 -sSfL https://github.com/garyttierney/me3/releases/latest/download/installer.sh | sh
-   "me3 is not available on PATH" is fine, play.sh finds it.
+2. Install me3 for Linux (Deck: Desktop Mode, Konsole), see
+   https://github.com/garyttierney/me3 for the one-line install.
+   "me3 is not available on PATH" is fine, the install worked.
 3. Unzip this in your home folder (not the game folder), e.g. ~/Games/sekiro-together
-4. Steam running, then in that folder: sh play.sh
+4. Steam running, then in a terminal in that folder:
+   ~/.local/bin/me3 launch -p "$PWD/sekiro-coop.me3"
    Starting from the Steam library button starts the game WITHOUT the mod.
 5. Rest is the same as above (ini, password, items).
 Files: the ini is next to the DLL. Log, backups and saves are in

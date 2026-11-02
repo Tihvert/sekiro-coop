@@ -5,7 +5,7 @@ rem - no `testsync` feature: no log streaming, no DLL push between players, and 
 rem   testers' PowerShell launcher scripts embedded in the DLL (shipfiles.rs);
 rem - local paths remapped (no C:\Users\<name> in panic messages or the PDB path);
 rem - no Windows scripts in the zip: me3 opens sekiro-coop.me3 on a double-click (me3 launch -p).
-rem   play.sh is for Linux / Steam Deck, where me3 is often not on PATH yet (~/.local/bin).
+rem   No play.sh either: Nexus quarantined 1.0.8 with it (a .sh with curl | sh). Linux docs give the me3 command.
 rem The text files come from ship-public\ and the licenses from the public repo's files here.
 setlocal
 call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Auxiliary\Build\vcvars64.bat" 10.0.26100.0 >nul || exit /b 1
@@ -24,7 +24,6 @@ mkdir "%S%\licenses"
 copy /y "%CARGO_TARGET_DIR%\release\sekiro_coop.dll" "%S%\" >nul || exit /b 1
 copy /y "%ROOT%\ship\sekiro-coop.me3" "%S%\" >nul || exit /b 1
 copy /y "%ROOT%\ship-public\HOW-TO-PLAY.txt" "%S%\" >nul || exit /b 1
-copy /y "%ROOT%\ship-public\play.sh" "%S%\" >nul || exit /b 1
 copy /y "%ROOT%\ship-public\LICENSE.txt" "%S%\" >nul || exit /b 1
 copy /y "%ROOT%\ship-public\licenses\*" "%S%\licenses\" >nul || exit /b 1
 set "Z=sekiro-together-v%VER%.zip"

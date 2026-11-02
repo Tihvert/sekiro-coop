@@ -103,7 +103,7 @@ You don't need the `WINEDLLOVERRIDES="dinput8.dll=n,b"` launch option Sekiro Onl
 2. Install me3 in a terminal (Deck: Desktop Mode, Konsole):
    `curl --proto '=https' --tlsv1.2 -sSfL https://github.com/garyttierney/me3/releases/latest/download/installer.sh | sh`
 3. Unzip the mod in your home folder, not the game folder.
-4. With Steam running, run `sh play.sh` in that folder. Starting from the Steam library button starts the game without the mod.
+4. With Steam running, run `~/.local/bin/me3 launch -p "$PWD/sekiro-coop.me3"` in a terminal in that folder. Starting from the Steam library button starts the game without the mod.
 5. The rest is the same as above.
 
 The log and backups are in Sekiro's Proton prefix: `~/.local/share/Steam/steamapps/compatdata/814380/pfx/drive_c/users/steamuser/AppData/Local/sekiro-coop/`.
@@ -167,7 +167,7 @@ Crypto works too:
 
 ## Changelog
 
-- **1.0.8 beta** (2026-11-02): after a session your own world got put back wrong, so doors and areas you hadn't been to with your friend could end up shut. Fixed, only the parts you actually saw get written back now. The short gap when Sword Saint Isshin changes his health bar doesn't count as running from the fight anymore. If you're alive but stuck with no control (black screen, Esc does nothing), keep pressing Esc or Start: the mod lets go of its own holds, and if that's not enough it warps you to your last idol. Linux and Steam Deck should work now through Proton (`play.sh`, see above), not tested yet. Not tested in game yet either, so tell me if something's off
+- **1.0.8 beta** (2026-11-02): after a session your own world got put back wrong, so doors and areas you hadn't been to with your friend could end up shut. Fixed, only the parts you actually saw get written back now. The short gap when Sword Saint Isshin changes his health bar doesn't count as running from the fight anymore. If you're alive but stuck with no control (black screen, Esc does nothing), keep pressing Esc or Start: the mod lets go of its own holds, and if that's not enough it warps you to your last idol. Linux and Steam Deck should work now through Proton (see above), not tested yet. Not tested in game yet either, so tell me if something's off
 - **1.0.7 beta** (2026-11-01): if you died in a boss fight and your friend finished it, you woke up at your idol even when the game moves everyone somewhere after the boss (the Divine Dragon sends you to Ashina Castle). Now you get taken to your friend. Doors that stayed shut with no way to open them get checked after every loading screen now, not only after resting. And if your last game didn't close normally, the mod tells you how to stop a session and which logs to send. Not tested in game yet, so tell me if it acts weird
 - **1.0.6 beta** (2026-10-31): after the tutorial fight with Genichiro you could fall through the world at the temple and die. The mod put you back where the cutscene started, even though the game had moved you to another map. Fixed. Minibosses could also have different HP for the host and the friend after a death or a rest, so the fight looked out of sync. Bosses now get the same HP and posture on every machine. Not tested in game yet, so tell me if it acts weird
 - **1.0.5 beta** (2026-10-31): if the host and a friend had a different Kuro's Charm state, enemies had different HP on each screen (up to 1.8x). Now everyone uses the host's state during the session and you get your own back when you leave. Not tested in game yet, so tell me if it acts weird
