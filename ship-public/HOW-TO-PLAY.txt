@@ -1,4 +1,4 @@
-SEKIRO SEAMLESS CO-OP 1.0.7 beta - quick guide
+SEKIRO TOGETHER 1.0.8 beta - quick guide
 =============================================
 
 Beta, still buggy. Back up your saves before playing.
@@ -7,7 +7,7 @@ Full readme, known bugs and source: https://github.com/Tihvert/sekiro-coop
 YOU NEED
 - Sekiro on Steam, version 1.06 (normal, unmodded)
 - me3 mod loader: https://github.com/garyttierney/me3/releases (default install)
-- Windows
+- Windows, or Linux / Steam Deck with Proton (see LINUX / STEAM DECK below)
 
 ONCE
 1. Install me3.
@@ -58,3 +58,23 @@ BUGS
 Log: %LOCALAPPDATA%\sekiro-coop\log.txt
 Press F11 (or Back/Share on a pad) when a bug happens, it marks the log.
 Report on GitHub with the logs from everyone.
+
+LINUX / STEAM DECK
+Not tested on Linux by me yet. me3 supports Linux and the Deck through
+Proton, so it should work. Tell me if it does or doesn't.
+No WINEDLLOVERRIDES launch option needed, that's only for Sekiro Online.
+1. Start Sekiro once from Steam normally, quit at the main menu.
+2. Install me3 in a terminal (Deck: Desktop Mode, Konsole):
+   curl --proto '=https' --tlsv1.2 -sSfL https://github.com/garyttierney/me3/releases/latest/download/installer.sh | sh
+   "me3 is not available on PATH" is fine, play.sh finds it.
+3. Unzip this in your home folder (not the game folder), e.g. ~/Games/sekiro-together
+4. Steam running, then in that folder: sh play.sh
+   Starting from the Steam library button starts the game WITHOUT the mod.
+5. Rest is the same as above (ini, password, items).
+Files: the ini is next to the DLL. Log, backups and saves are in
+Sekiro's Proton prefix:
+  ~/.local/share/Steam/steamapps/compatdata/814380/pfx/drive_c/users/steamuser/
+    AppData/Local/sekiro-coop/   log.txt, save-backups
+    AppData/Roaming/Sekiro/      saves
+Full Linux guide, Deck Game Mode and fixes for "doesn't start":
+https://github.com/Tihvert/sekiro-coop/blob/main/docs/LINUX.md

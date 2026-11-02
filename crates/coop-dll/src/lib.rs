@@ -52,6 +52,7 @@ mod nsession;
 mod ownworld;
 mod peers;
 mod persist;
+mod platform;
 mod posture;
 mod menu;
 mod optmenu;
@@ -76,6 +77,7 @@ mod talklock;
 mod spectate_cam;
 mod spectate_input;
 mod steam;
+mod stuck;
 #[cfg(feature = "testsync")]
 mod testsync;
 mod tuning;
@@ -119,6 +121,7 @@ pub unsafe extern "C" fn DllMain(hmodule: usize, reason: u32, reserved: usize) -
 
     std::thread::spawn(move || {
         log::session_header();
+        log::line(&platform::log_line());
         log::line("coop: dll attached, waiting for game task system");
         crash::install();
         // No hook or patch of any kind (icons included) on an unsupported exe.
@@ -182,7 +185,7 @@ fn init(hmodule: usize) {
             30,
         ),
         log::PrevEnd::Crash => bossrules::notice(
-            "The game crashed last time.\nPlease send log.txt and log.old.txt\nfrom %LOCALAPPDATA%\\sekiro-coop".to_string(),
+            format!("The game crashed last time.\nPlease send log.txt and log.old.txt\nfrom {}", platform::data_folder_hint()),
             30,
         ),
         // A clean exit, or no log to read: nothing to report.

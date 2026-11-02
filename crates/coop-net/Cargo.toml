@@ -3,6 +3,6 @@ name = "coop-net"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Seamless co-op session: UDP link between two Sekiro instances that survives deaths, warps and loads"
+description = "Co-op session: UDP link between two Sekiro instances that survives deaths, warps and loads"
 
 [dependencies]

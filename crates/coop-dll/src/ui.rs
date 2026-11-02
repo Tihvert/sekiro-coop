@@ -155,8 +155,8 @@ fn post(f: impl FnOnce(&mut Commands)) {
 /// Shown in the status line, so both players see at once whether the mod was updated.
 /// Bump it with every release together with the first line of `dist/sekiro-coop/OHJE.txt`.
 /// Public numbering from 1.0-beta (= internal build 8.62, 2026-10-28); the 8.x numbers live on
-/// only in docs/JATKA-TASTA-MULTIPLAYER.md. 1.0.1-beta: SprjTask lookup retried (Nexus "no ini" reports). 1.0.2-beta: clean public build (build-public.cmd). 1.0.3-beta: Steam lobby AccessDenied explained, joiner without a host told how to use UDP. 1.0.4-beta: co-op items work on non-English games (template row by id). 1.0.5-beta: Kuro's Charm follows the host during a session. 1.0.6-beta: no void fall after a cutscene that changes the map, bosses scaled on every machine. 1.0.7-beta: a player who died in a boss fight follows the killer's post-boss warp, doors checked after every load, notice when the last run did not close normally.
-pub const MOD_VERSION: &str = "1.0.7-beta";
+/// only in docs/JATKA-TASTA-MULTIPLAYER.md. 1.0.1-beta: SprjTask lookup retried (Nexus "no ini" reports). 1.0.2-beta: clean public build (build-public.cmd). 1.0.3-beta: Steam lobby AccessDenied explained, joiner without a host told how to use UDP. 1.0.4-beta: co-op items work on non-English games (template row by id). 1.0.5-beta: Kuro's Charm follows the host during a session. 1.0.6-beta: no void fall after a cutscene that changes the map, bosses scaled on every machine. 1.0.7-beta: a player who died in a boss fight follows the killer's post-boss warp, doors checked after every load, notice when the last run did not close normally. 1.0.8-beta: the joiner's own-world restore no longer wipes areas it never saw (closed doors, replayed cutscenes) and mirrors a world behind the host's, Sword Saint's gauge gap is no retreat, a stuck-input watchdog, a living player leaves a phase A wait.
+pub const MOD_VERSION: &str = "1.0.8-beta";
 
 const YELLOW: [f32; 4] = [1.0, 0.85, 0.3, 1.0];
 /// Nameplate: full opacity up to this distance, then slowly lighter.
@@ -174,6 +174,11 @@ struct Overlay {
 /// The 'Mod settings' panel is on screen right now (render thread writes, `message_filter`
 /// reads: it takes `&self`).
 static PANEL_VISIBLE: AtomicBool = AtomicBool::new(false);
+
+/// The 'Mod settings' panel is up (stuck.rs: Esc goes to it, not to the game's menu).
+pub fn panel_visible() -> bool {
+    PANEL_VISIBLE.load(Ordering::Relaxed)
+}
 
 /// The imgui key for a Windows virtual-key code (`ingame_menu_key`); Insert for anything
 /// that has no mapping here.
@@ -597,12 +602,15 @@ impl Overlay {
 
 impl ImguiRenderLoop for Overlay {
     // ImGui's built-in 13 px bitmap font looked pixelated on a friend's screen
-    // (2026-10-22). Use Windows' Segoe UI, sized to the screen; fall back to
-    // the built-in font if the file is missing.
+    // (2026-10-22). Use Windows' Segoe UI, sized to the screen; Proton has no Segoe UI
+    // but links its own arial.ttf into the prefix. Fall back to the built-in font if neither
+    // file is there.
     fn initialize<'a>(&'a mut self, ctx: &mut Context, _rc: &'a mut dyn RenderContext) {
         let windir = std::env::var("WINDIR").unwrap_or_else(|_| r"C:\Windows".into());
-        let Ok(bytes) = std::fs::read(format!(r"{windir}\Fonts\segoeui.ttf")) else {
-            log::line("ui: segoeui.ttf not found, using built-in font");
+        let Some((file, bytes)) =
+            ["segoeui.ttf", "arial.ttf"].into_iter().find_map(|f| Some((f, std::fs::read(format!(r"{windir}\Fonts\{f}")).ok()?)))
+        else {
+            log::line("ui: segoeui.ttf / arial.ttf not found, using built-in font");
             return;
         };
         let data: &'static [u8] = Box::leak(bytes.into_boxed_slice());
@@ -613,7 +621,7 @@ impl ImguiRenderLoop for Overlay {
             size_pixels: size,
             config: Some(FontConfig { oversample_h: 2, ..FontConfig::default() }),
         }]);
-        log::line(&format!("ui: font Segoe UI {size:.0} px"));
+        log::line(&format!("ui: font {file} {size:.0} px"));
     }
 
     /// The mouse cursor is drawn by ImGui only while the 'Mod settings' panel is up (it is

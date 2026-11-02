@@ -547,6 +547,32 @@ fn subset_check(
     (own.len(), missing.into_iter().take(40).collect(), n)
 }
 
+/// Our own flags the host's world may lack while we still count as "behind" it.
+const BEHIND_MAX: usize = 32;
+
+/// Issue #2 (2026-10-31): a joiner on a nearly new save (198 flags) had 12 flags the host's
+/// world lacked, all tutorial map / event states, so `auto` merged: after 5 h of the host's
+/// late game the joiner's world was the tutorial plus some progress flags, with closed doors
+/// and a castle cutscene that played for a boss already gone. A world whose few extra flags
+/// (at most `BEHIND_MAX`) are none of them progress is behind the host's: `auto` mirrors it.
+fn behind_host(missing: &[u32], n_missing: usize, is_progress: impl Fn(u32) -> bool) -> bool {
+    n_missing > 0 && n_missing <= BEHIND_MAX && missing.len() == n_missing && !missing.iter().any(|&id| is_progress(id))
+}
+
+/// A flag of a player's own progress for `behind_host`: an idol unlock or game progress
+/// milestone (params), a boss defeat (93xx, the boss table), the story phase or an ending, NPC
+/// quest state. Without the params everything counts (the old strict subset).
+fn own_progress(id: u32, l: Option<&Lists>) -> bool {
+    let Some(l) = l else { return true };
+    l.idols.contains(&id)
+        || l.progress.contains(&id)
+        || (9300..=9399).contains(&id)
+        || crate::bosses::ENCOUNTERS.iter().any(|e| e.defeat_flag == id)
+        || world::STORY_PHASE.contains(&id)
+        || world::ENDINGS.contains(&id)
+        || quest_unit(id, QUEST_UNITS).is_some()
+}
+
 /// Mirror (adopt the shared world as it is) or merge, for the setting and the subset
 /// result of the latest join snapshot.
 fn use_mirror(setting: u8, subset: Option<bool>) -> bool {
@@ -585,6 +611,30 @@ fn resolve_filter(
         }
     }
     (keep, refused, unchecked)
+}
+
+/// The merge's final records (issue #2, 2026-10-31). Sekiro pages map-area flag records in and
+/// out (a base id resolves to a block entry only while its area is loaded), and the backup only
+/// saw the records paged in at the join. `write_records_raw` zeroes every live shared record,
+/// so a live record we never saw our own state of lost its area's whole state: the joiner's
+/// doors closed and a castle cutscene replayed after the session. Now a live record is
+/// rewritten only when `known` (it resolved to the same entry when the backup was taken): the
+/// merged bytes, or zero when the merge has none (our own state was all zero). Any other live
+/// record keeps its live (session) bytes. Merged records that are not live are passed on
+/// (`write_records_raw` counts them as not resolvable). Returns (records, bases kept live).
+fn final_records(merged: Vec<(u32, Vec<u8>)>, live: &[(u32, Vec<u8>)], known: impl Fn(u32) -> bool) -> (Vec<(u32, Vec<u8>)>, Vec<u32>) {
+    let live_bases: HashSet<u32> = live.iter().map(|(b, _)| *b).collect();
+    let mut out: Vec<(u32, Vec<u8>)> = merged.into_iter().filter(|(b, _)| !live_bases.contains(b) || known(*b)).collect();
+    let mut kept = Vec::new();
+    for (b, v) in live {
+        if !known(*b) {
+            kept.push(*b);
+            if v.iter().any(|&x| x != 0) {
+                out.push((*b, v.clone()));
+            }
+        }
+    }
+    (out, kept)
 }
 
 /// The records to write back: the backup, the progress flags switched on, the quest
@@ -1020,15 +1070,23 @@ pub fn before_join_snapshot(fm: usize) {
                 a.quest_taken.len()
             ));
         } else {
-            let backup = non_zero(world::read_shared_records(fm));
+            let all = world::read_shared_records(fm);
+            // Restore safety: where each record resolves now (checked again before writing it
+            // back). Every paged-in record, the all-zero ones too: the restore rewrites only
+            // records whose own state was seen here (`final_records`, issue #2).
+            let tuples: BTreeMap<u32, Tuple> = all.iter().filter_map(|(b, _)| world::record_tuple(fm, *b).map(|t| (*b, t))).collect();
+            let backup = non_zero(all);
             log::line(&format!(
                 "own world: backed up our own world before the join snapshot: {} non-zero shared records ({} B), save slot {slot}, sen total {sen:?}",
                 backup.len(),
                 bytes(&backup)
             ));
-            // Restore safety: where each record resolves now (checked again before writing it back).
-            let tuples: BTreeMap<u32, Tuple> = backup.iter().filter_map(|(b, _)| world::record_tuple(fm, *b).map(|t| (*b, t))).collect();
-            log::line(&format!("own world: {} of {} backup records with their resolve tuple", tuples.len(), backup.len()));
+            log::line(&format!(
+                "own world: {} paged-in shared records with their resolve tuple ({} of the {} backup records)",
+                tuples.len(),
+                backup.iter().filter(|(b, _)| tuples.contains_key(b)).count(),
+                backup.len()
+            ));
             let own_phase = Some(world::read_phase(fm));
             log::line(&format!("own world: our own story phase: {}", world::phase_names(own_phase.unwrap_or(0))));
             let s = Saved {
@@ -1063,13 +1121,20 @@ pub fn after_join_snapshot(fm: usize) {
         a.base_phase = Some(world::read_phase(fm));
         // Mirror or merge (own_world_mode = auto): is our own world inside the host's?
         let (counted, missing, n_missing) = subset_check(&a.backup, &a.progress, &a.baseline, |id| per_player(id) || NOISE.contains(&id));
-        a.subset = Some(n_missing == 0);
+        let l = lists();
+        let behind = behind_host(&missing, n_missing, |id| own_progress(id, l));
+        a.subset = Some(n_missing == 0 || behind);
         a.subset_extra = n_missing as u32;
         log::line(&format!(
-            "own world: own_world_mode = {}: our world ({counted} flags on, per-player and time-of-day ignored) {} the host's world{}; at the end of the session: {}",
+            "own world: own_world_mode = {}: our world ({counted} flags on, per-player and time-of-day ignored) {} the host's world{}{}; at the end of the session: {}",
             mode_name(),
             if n_missing == 0 { "is a subset of".to_string() } else { format!("has {n_missing} flags not in") },
             if missing.is_empty() { String::new() } else { format!(" (first {:?})", missing) },
+            if behind {
+                format!(", none of them progress (idol, game progress, boss, story, NPC quest), at most {BEHIND_MAX}: we are behind the host's world")
+            } else {
+                String::new()
+            },
             if use_mirror(mode(), a.subset) { "mirror (keep the shared world)" } else { "merge (our own world + session progress)" }
         ));
         // The quest baseline follows once the join load has settled (`quest_baseline`).
@@ -1393,6 +1458,11 @@ impl State {
                     "own world: WARNING own_world_mode = mirror with {} flags of our own world not in the host's: they are given up",
                     a.subset_extra
                 ));
+            } else if a.subset_extra > 0 {
+                log::line(&format!(
+                    "own world: our world was behind the host's: its {} flags the host's world lacked (none of them progress) are given up",
+                    a.subset_extra
+                ));
             }
             log::line(&format!(
                 "own world: MIRRORED save slot {}: the shared world is kept as our own ({} join snapshots, our backup of {} records dropped), nothing written",
@@ -1473,14 +1543,25 @@ impl State {
         }
         let live_map: HashMap<u32, &Vec<u8>> = live.iter().map(|(b, v)| (*b, v)).collect();
         recs.extend(refused.iter().filter_map(|(b, _, _)| live_map.get(b).map(|v| (*b, (*v).clone()))));
+        // Issue #2: only the records whose own state we saw are ours to rewrite; every other
+        // live one keeps its session bytes instead of being zeroed.
+        let (recs, kept_live) = final_records(recs, &live, |b| a.tuples.get(&b).is_some_and(|&t| world::record_tuple(fm, b) == Some(t)));
+        if !kept_live.is_empty() {
+            log::line(&format!(
+                "own world: {} live records keep their session state (not paged in when our own world was backed up, so we never saw it): {:?}",
+                kept_live.len(),
+                kept_live.iter().take(40).collect::<Vec<_>>()
+            ));
+        }
         log::line(&format!(
-            "own world: dry run (merge): {} records ({} B) to write after zeroing {} shared records, {set} progress flags, {quest_set} quest flags on, {} per-player flags kept, {skipped} skipped, {} refused by the resolve check, {unchecked} without a stored tuple ({} stored); save copied first",
+            "own world: dry run (merge): {} records ({} B) to write after zeroing {} shared records, {set} progress flags, {quest_set} quest flags on, {} per-player flags kept, {skipped} skipped (their record is not paged in now: it keeps what the game stores for it), {} refused by the resolve check, {unchecked} without a stored tuple ({} stored), {} kept at their session state; save copied first",
             recs.len(),
             bytes(&recs),
             live.len(),
             keep.len(),
             refused.len(),
-            a.tuples.len()
+            a.tuples.len(),
+            kept_live.len()
         ));
         let (written, missing) = world::write_records_raw(fm, &recs);
         // The story phase (outside the shared records): the session's if it moved it, else ours.
@@ -2054,6 +2135,52 @@ mod tests {
         assert_eq!(missing, vec![11_100_010, 12_000_001]);
         // Nothing of ours at all: trivially a subset.
         assert_eq!(subset_check(&[], &BTreeSet::new(), &host, ignore).2, 0);
+    }
+
+    /// Issue #2: the joiner's 12 extra flags were tutorial map / event states.
+    #[test]
+    fn a_world_with_a_few_non_progress_extras_is_behind_the_host() {
+        let missing = [701, 11_120_151, 11_120_222, 11_127_309];
+        let quest_or_boss = |id: u32| (9300..=9399).contains(&id) || NPC_STATES.contains(&id) || id / 10_000_000 == 7;
+        assert!(behind_host(&missing, missing.len(), quest_or_boss));
+        // Strictly a subset is not "behind" (it is the subset already).
+        assert!(!behind_host(&[], 0, quest_or_boss));
+        // One progress flag of our own: merge as before.
+        assert!(!behind_host(&[701, 9303], 2, quest_or_boss));
+        assert!(!behind_host(&[701, 1_139], 2, quest_or_boss));
+        assert!(!behind_host(&[701, 71_100_100], 2, quest_or_boss));
+        // Too many extras, or a truncated list (more than the first 40 known): merge.
+        let many: Vec<u32> = (0..=BEHIND_MAX as u32).map(|i| 11_120_100 + i).collect();
+        assert!(!behind_host(&many, many.len(), quest_or_boss));
+        assert!(!behind_host(&missing, 50, quest_or_boss));
+        // No params: every flag counts as progress (strict subset only).
+        assert!(own_progress(11_120_151, None));
+    }
+
+    /// Issue #2: a live record we never saw our own state of keeps its session bytes.
+    #[test]
+    fn the_merge_rewrites_only_records_whose_own_state_was_seen() {
+        let merged = vec![rec(11_100_000, &[11_100_001]), rec(12_000_000, &[12_000_005]), rec(25_000_000, &[25_000_001])];
+        let live = vec![
+            rec(11_100_000, &[11_100_001, 11_100_002]),
+            rec(11_120_000, &[11_120_610]),
+            rec(12_000_000, &[12_000_005, 12_000_006]),
+            rec(11_125_000, &[]),
+        ];
+        // Seen at the backup: 11_100_000 (non-zero then) and 11_125_000 (all zero then).
+        let known = |b: u32| b == 11_100_000 || b == 11_125_000;
+        let (out, kept) = final_records(merged, &live, known);
+        let get = |b: u32| out.iter().find(|r| r.0 == b).map(|r| r.1.clone());
+        // Ours: the merged bytes.
+        assert_eq!(get(11_100_000), Some(rec(11_100_000, &[11_100_001]).1));
+        // Never seen: the live (session) bytes, the merge's version is dropped.
+        assert_eq!(get(11_120_000), Some(rec(11_120_000, &[11_120_610]).1));
+        assert_eq!(get(12_000_000), Some(rec(12_000_000, &[12_000_005, 12_000_006]).1));
+        // Seen all zero, nothing merged: not written (the zeroing leaves it zero).
+        assert_eq!(get(11_125_000), None);
+        // Not paged in now: passed on as before.
+        assert!(get(25_000_000).is_some());
+        assert_eq!(kept, vec![11_120_000, 12_000_000]);
     }
 
     #[test]

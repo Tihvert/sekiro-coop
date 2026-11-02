@@ -453,7 +453,7 @@ fn apply(ini: &Ini, warn: &mut Vec<String>) {
 const DEFAULT_LOG_OFF: &str = "observe, hkb, native: remote moved";
 
 const TEMPLATE: &str = "\
-; Sekiro seamless co-op settings. Lines starting with ; are comments.
+; Sekiro Together settings. Lines starting with ; are comments.
 ; The game re-reads this file about every 2 seconds, so most changes apply at once.
 ;
 ; How to play together: both players write the same password below. After the

@@ -58,12 +58,12 @@ BEGIN
     BLOCK "040904B0"
     BEGIN
       VALUE "CompanyName", "Tihvert"
-      VALUE "FileDescription", "Sekiro Seamless Co-op (me3 mod)"
+      VALUE "FileDescription", "Sekiro Together (me3 mod)"
       VALUE "FileVersion", "{version}"
       VALUE "InternalName", "sekiro_coop"
       VALUE "LegalCopyright", "MIT, https://github.com/Tihvert/sekiro-coop"
       VALUE "OriginalFilename", "sekiro_coop.dll"
-      VALUE "ProductName", "Sekiro Seamless Co-op"
+      VALUE "ProductName", "Sekiro Together"
       VALUE "ProductVersion", "{version}"
     END
   END

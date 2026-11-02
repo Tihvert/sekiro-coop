@@ -3,7 +3,7 @@ name = "sekiro_coop"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-description = "Seamless two-player co-op for Sekiro (Phase 0: load + tick log)"
+description = "Sekiro Together: online co-op for Sekiro"
 
 [features]
 # Native remote player (the friend as a real PlayerIns): works much better than the

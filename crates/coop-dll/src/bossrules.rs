@@ -1140,6 +1140,71 @@ pub fn emergency_reset(why: &str) {
     }
 }
 
+/// stuck.rs: we are alive and the game takes no input. Nothing of ours may hold us: the
+/// spectator camera goes back and any wait ends; a held death reload is dropped (we live).
+/// True when something was let go.
+pub fn alive_stuck_reset(why: &str) -> bool {
+    let cam = spectate_cam::restore_now();
+    let held = hand_back(why, false);
+    log::line(&format!("bossrules: {why}: camera restored {cam}, wait ended {held}"));
+    cam || held
+}
+
+/// The wait's atomics in one line (stuck.rs, the arrival line).
+pub fn describe_state() -> String {
+    format!(
+        "spectate state {}, wanted {}, latch {}, phase B ok {}, held reload {}, held load request {} (death load {}), load requests held so far {}",
+        SPEC_STATE.load(Ordering::Acquire),
+        SPEC_WANTED.load(Ordering::Acquire),
+        SPEC_LATCH.load(Ordering::Acquire),
+        SPEC_B_OK.load(Ordering::Acquire),
+        HELD_RELOAD.load(Ordering::Acquire),
+        LOAD_HELD_PENDING.load(Ordering::Acquire),
+        LOAD_DEATH_ARMED.load(Ordering::Acquire),
+        LOAD_HELD.load(Ordering::Acquire)
+    )
+}
+
+/// A gauge that goes away this soon after a same-fight gauge switch is the phase change's gap.
+const SWITCH_GAP: Duration = Duration::from_secs(15);
+
+/// Issue #2 (Sword Saint, 2026-10-31): the gauge moved from Genichiro (1120830) to Isshin
+/// (1120860), went away 2 s later (the phase cutscene) and never came back in our reader; the
+/// host told the joiner "retreat" (`EV_BOSS(3)`), which ended the friend's fight there and
+/// left the rest of it to the miniboss path. A retreat right after a switch inside the same
+/// encounter is the gap: the fight goes on.
+fn gap_after_switch(v: Verdict, since_switch: Option<Duration>) -> Verdict {
+    match v {
+        Verdict::Retreat if since_switch.is_some_and(|d| d < SWITCH_GAP) => Verdict::FightGoesOn,
+        v => v,
+    }
+}
+
+/// A living player stays in a phase A wait (the death reload held) at most this long.
+const ALIVE_IN_WAIT_MAX: Duration = Duration::from_secs(2);
+
+/// Issue #2: a phase A wait holds the death reload, and only a dead player may be held. Alive
+/// in one for `ALIVE_IN_WAIT_MAX` (a resurrection, a misread death) ends it; phase B already
+/// ends on "alive again".
+fn alive_wait_over(state: u8, alive_for: Duration) -> bool {
+    state == SPEC_WAITING && alive_for >= ALIVE_IN_WAIT_MAX
+}
+
+/// The overlay line of a wait. Phase A (the death screen) shows nothing of the world: the
+/// camera follows the friend behind it ("spectate sometimes goes to a black screen"), so the
+/// text says what the dark screen is.
+fn wait_overlay(phase_a: bool, name: &str, f8: bool) -> String {
+    let mut s = if phase_a {
+        format!("Waiting for {name} to end the boss fight\nThe screen stays dark until then; you wake at your idol")
+    } else {
+        format!("Spectating {name}")
+    };
+    if f8 {
+        s.push_str(" - [F8] wake at idol");
+    }
+    s
+}
+
 /// The friend rested while we are in a boss fight: go to our own idol.
 pub fn request_expel() {
     EXPEL_REQ.store(true, Ordering::Release);
@@ -1329,6 +1394,12 @@ pub struct BossRules {
     held_release: Option<(&'static str, Instant)>,
     /// The previous `on_frame`, for pausing the wait clocks during a cutscene.
     last_frame: Option<Instant>,
+    /// Since when we are alive in a phase A wait (`alive_wait_over`).
+    alive_in_wait: Option<Instant>,
+    /// The last gauge switch inside one table encounter: (when, the new gauge entity).
+    last_switch: Option<(Instant, i32)>,
+    /// The arrival line (a peer's fight in our block after a load) was written for this load.
+    arrival_logged: bool,
 }
 
 /// An HBD / defeat flag younger than this still counts as "the encounter is defeated".
@@ -1476,6 +1547,8 @@ impl BossRules {
         self.dead_idle_since = None;
         self.friend_gone_since = None;
         self.link_lost_since = None;
+        self.alive_in_wait = None;
+        self.arrival_logged = false;
     }
 
     /// Once per frame in the world. Returns true when it started a warp (the
@@ -1536,8 +1609,9 @@ impl BossRules {
                 let dead_here = !fell && game::chr_by_entity_id(entity).and_then(|c| c.hp()).is_some_and(|h| h <= 0);
                 // Our own death may clear the gauge: that is not the fight ending. A table
                 // boss's phase entity going away is not the kill either (bosses.rs).
-                let verdict = (alive && !fell)
-                    .then(|| bosses::classify(Sig::GaugeOff { entity, chr_dead_or_gone: dead_here }, &flag_on));
+                let raw = (alive && !fell).then(|| bosses::classify(Sig::GaugeOff { entity, chr_dead_or_gone: dead_here }, &flag_on));
+                let verdict =
+                    raw.map(|v| gap_after_switch(v, self.last_switch.filter(|s| s.1 == entity).map(|s| now.duration_since(s.0))));
                 log::line(&format!(
                     "boss: gauge off{}",
                     if fell {
@@ -1549,6 +1623,9 @@ impl BossRules {
                             Some(Verdict::MiniDefeated) => " (boss dead without HandleBossDefeat: miniboss, friend told it fell)",
                             Some(Verdict::Defeated(_)) => " (encounter defeated flag on, friend told it fell)",
                             Some(Verdict::PhaseEnd) => " (phase end: the fight goes on)",
+                            Some(Verdict::FightGoesOn) if raw == Some(Verdict::Retreat) => {
+                                " (boss alive, right after the phase's gauge switch: a gap, the fight goes on)"
+                            }
                             Some(Verdict::FightGoesOn) => " (final phase dead, HandleBossDefeat follows: the fight goes on)",
                             _ => "",
                         }
@@ -1564,6 +1641,9 @@ impl BossRules {
             }
             (Some(old), Some(new)) if old != new => {
                 let v = bosses::classify(Sig::GaugeSwitch { from: old.0, to: new.0 }, &flag_on);
+                if v == Verdict::FightGoesOn {
+                    self.last_switch = Some((now, new.0));
+                }
                 log::line(&format!(
                     "boss: gauge now entity {} name {} (was {} / {}){}",
                     new.0,
@@ -1728,6 +1808,53 @@ impl BossRules {
         // Phase B holds no reload, so a player who is alive again just stops waiting.
         if alive && release.is_none() && SPEC_STATE.load(Ordering::Acquire) == SPEC_SPECTATE {
             release = Some("alive again");
+        }
+        // Phase A holds the death reload: a living player is let go and keeps playing where it
+        // stands (the held reload is dropped, it would warp a living player to the idol).
+        let state_now = SPEC_STATE.load(Ordering::Acquire);
+        if alive && state_now == SPEC_WAITING {
+            let since = *self.alive_in_wait.get_or_insert(now);
+            if alive_wait_over(state_now, now.duration_since(since)) {
+                log::line(&format!(
+                    "spectate: alive for {} ms in a phase A wait (hp {hp:?}): wait ended, the held reload dropped ({})",
+                    now.duration_since(since).as_millis(),
+                    describe_state()
+                ));
+                self.cam.release("alive in a phase A wait");
+                hand_back("alive in a phase A wait", false);
+                self.overlay = None;
+                self.spec_since = None;
+                self.watch.clear();
+                self.held_release = None;
+                self.alive_in_wait = None;
+            }
+        } else {
+            self.alive_in_wait = None;
+        }
+        // Issue #2 (Demon of Hatred, no log): we came out of a loading screen into a block where
+        // a peer's boss fight runs. One line of what we are in, for the next report.
+        if !self.arrival_logged && in_world_for >= Duration::from_secs(3) {
+            self.arrival_logged = true;
+            for p in peers.iter() {
+                let Some((entity, since)) = world.peer_boss(p.id) else { continue };
+                let Some(r) = p.snapshot.filter(|r| here == Some(r.block)) else { continue };
+                log::line(&format!(
+                    "boss: we arrived in block {:?} during peer {}'s boss fight {entity} ({} s old), {} m from it, our hp {hp:?}, our gauge {:?}, menu mask {:?}, talk idle {}, own cutscene {}, remo {:?}, load pending {}, free cam {:?}, start flags held here {}; {}",
+                    here,
+                    p.id.slot(),
+                    since.elapsed().as_secs(),
+                    me_pos.map_or(-1.0, |q| game::distance(q, r.pos)) as i32,
+                    gauge,
+                    game::menu_mask().map(|m| format!("{m:#x}")),
+                    game::talk_idle(),
+                    crate::cutscene::active(),
+                    crate::cutscene::raw(),
+                    game::load_pending(),
+                    spectate_cam::free_cam_now(),
+                    crate::bossgate::holding_friend_fight(),
+                    describe_state()
+                ));
+            }
         }
 
         self.spectate_step(&mut net, world, peers, &engaged, here, connected, wake, release, now);
@@ -2052,11 +2179,8 @@ impl BossRules {
                     .and_then(|id| peers.by_id(id))
                     .or(peers.first());
                 let name = friend_name(shown, net);
-                self.overlay = Some(if tuning::debug_hotkeys() {
-                    format!("Spectating {name} - [F8] wake at idol")
-                } else {
-                    format!("Spectating {name}")
-                });
+                self.overlay =
+                    Some(wait_overlay(SPEC_STATE.load(Ordering::Acquire) == SPEC_WAITING, &name, tuning::debug_hotkeys()));
 
                 // Each watched peer: at 0 HP for DEAD_AFTER (90 s fallback, no revive) = dead, out of
                 // our block for 5 s = gone (or its committed EV_DEATH / EV_DOWN / gauge-gone,
@@ -2876,5 +3000,32 @@ mod tests {
         // ... and are due as before once it is over.
         assert_eq!(spec_timeout(now.duration_since(spec) + SPECTATE_MAX), Some("timeout"));
         assert!(dead_idle_due(now.duration_since(idle) + DEAD_IDLE_MAX));
+    }
+
+    /// Issue #2: only a dead player is held in a phase A wait.
+    #[test]
+    fn a_living_player_leaves_a_phase_a_wait() {
+        assert!(!alive_wait_over(SPEC_WAITING, Duration::from_millis(1999)));
+        assert!(alive_wait_over(SPEC_WAITING, ALIVE_IN_WAIT_MAX));
+        // Phase B ends on "alive again" by itself; nothing else is a wait.
+        for s in [SPEC_OFF, SPEC_SPECTATE, SPEC_RELEASING] {
+            assert!(!alive_wait_over(s, Duration::from_secs(60)));
+        }
+    }
+
+    /// Issue #2: Sword Saint's gauge went away 2 s after moving to Isshin.
+    #[test]
+    fn a_gauge_gap_right_after_a_switch_is_no_retreat() {
+        assert_eq!(gap_after_switch(Verdict::Retreat, Some(Duration::from_secs(2))), Verdict::FightGoesOn);
+        assert_eq!(gap_after_switch(Verdict::Retreat, Some(SWITCH_GAP)), Verdict::Retreat);
+        assert_eq!(gap_after_switch(Verdict::Retreat, None), Verdict::Retreat);
+        assert_eq!(gap_after_switch(Verdict::Defeated(1120860), Some(Duration::from_secs(1))), Verdict::Defeated(1120860));
+    }
+
+    #[test]
+    fn phase_a_says_the_screen_is_dark() {
+        assert_eq!(wait_overlay(false, "Kuro", false), "Spectating Kuro");
+        assert!(wait_overlay(true, "Kuro", false).contains("stays dark"));
+        assert!(wait_overlay(true, "Kuro", true).ends_with("[F8] wake at idol"));
     }
 }

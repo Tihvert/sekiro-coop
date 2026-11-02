@@ -31,6 +31,9 @@ const VK_F5: i32 = 0x74;
 const VK_F6: i32 = 0x75;
 const VK_F7: i32 = 0x76;
 const VK_F8: i32 = 0x77;
+const VK_ESCAPE: i32 = 0x1B;
+/// XInput Start (the game's menu button).
+const PAD_START: u16 = 0x0010;
 
 // Map entity ids in Sekiro are 7 digits (e.g. 1100850, 1110800).
 const SCAN_FIRST: i32 = 1_000_000;
@@ -108,6 +111,10 @@ pub struct Puppet {
     motion: crate::motion::Motion,
     phantom_log_at: Option<std::time::Instant>,
     hkb: crate::hkbsync::HkbSync,
+    /// Alive but no control (stuck.rs): Esc / Start edges and the watchdog.
+    stuck: crate::stuck::Stuck,
+    esc: Key,
+    pad_start_was_down: bool,
     tuning_logged: bool,
     modules_logged: u32,
     anims_ok: u32,
@@ -198,6 +205,96 @@ impl Puppet {
         }
         self.invalidate_world("our warp");
         self.warp_pending = Some(std::time::Instant::now());
+    }
+
+    /// stuck.rs, every frame in the world: Esc / Start edges against the menu mask. True on the
+    /// frame it warped (the caller lets go like after a join warp).
+    fn stuck_watchdog(&mut self, player: Chr, in_world_for: std::time::Duration) -> bool {
+        use crate::stuck::{Action, Input};
+        let esc = self.esc.pressed(VK_ESCAPE);
+        let pad_down = crate::spectate_input::pad_buttons_down().is_some_and(|b| b & PAD_START != 0);
+        let pad = pad_down && !self.pad_start_was_down;
+        self.pad_start_was_down = pad_down;
+        let alive = player.hp().is_some_and(|h| h > 0);
+        let press = (esc || pad) && crate::spectate_input::game_focused();
+        // Only on a press: the mask getter is a game call.
+        let mask = if press || self.stuck.probing() { game::menu_mask() } else { None };
+        // A talk (NPC, idol: mask bit 0x80) takes Esc for its own lines.
+        let talking = press && mask.is_some_and(|m| m & 0x80 != 0) && !game::talk_idle();
+        let action = self.stuck.step(Input {
+            now: std::time::Instant::now(),
+            alive,
+            in_world_for,
+            press,
+            mask,
+            excluded: talking || crate::cutscene::active() || ui::panel_visible() || game::load_pending(),
+        });
+        let state = || {
+            format!(
+                "{} s in the world, hp {:?}, block {:?}, pos {:?}, menu mask {:?}, talk idle {}, remo {:?}, load pending {}, free cam {:?}, death latch {:?}, flags 9100 {:?} 9110 {:?}; {}",
+                in_world_for.as_secs(),
+                player.hp(),
+                game::current_block(),
+                player.position(),
+                game::menu_mask().map(|m| format!("{m:#x}")),
+                game::talk_idle(),
+                crate::cutscene::raw(),
+                game::load_pending(),
+                crate::spectate_cam::free_cam_now(),
+                game::read::<u32>(game::module_base() + 0x3EA0D74),
+                game::event_flag(9100),
+                game::event_flag(9110),
+                bossrules::describe_state()
+            )
+        };
+        match action {
+            Action::None => false,
+            Action::Back => {
+                log::line("stuck: Esc / Start open menus again, the watchdog is reset");
+                false
+            }
+            Action::Recover => {
+                log::line(&format!(
+                    "stuck: Esc / Start ignored {} times while alive (the menu mask never changed): {}",
+                    self.stuck.ignored_count(),
+                    state()
+                ));
+                crate::statelog::dump(self.probe.current(player).unwrap_or(0));
+                bossrules::alive_stuck_reset("stuck (alive, no input)");
+                if let Some(v) = crate::spectate_cam::clear_stray_free_cam() {
+                    log::line(&format!("stuck: the free-cam switch GameRend+0xE0 was {v} (not ours): written 0"));
+                }
+                self.event_notice = Some((
+                    "The game stopped answering Esc. Letting go of the mod's holds;\nif nothing changes you are sent to your idol".to_string(),
+                    std::time::Instant::now(),
+                    10,
+                ));
+                false
+            }
+            Action::Warp => {
+                // A warp under an open talk / menu freed its context and crashed (2026-10-23).
+                let menu = game::menu_mask();
+                let safe = menu == Some(0) && game::talk_idle() && !crate::cutscene::active() && !game::load_pending();
+                if !safe {
+                    log::line(&format!("stuck: still no input, but a warp is not safe now (menu, talk or a load): no warp. {}", state()));
+                    return false;
+                }
+                let idol = game::last_idol();
+                log::line(&format!("stuck: still no input {} s after letting go: warping to our last idol {idol}. {}", crate::stuck::WARP_AFTER.as_secs(), state()));
+                self.event_notice = Some(("Still stuck: sending you to your idol".to_string(), std::time::Instant::now(), 8));
+                game::warp_to_idol(idol);
+                true
+            }
+            Action::GiveUp => {
+                log::line(&format!("stuck: still no input after the warp, giving up until the next loading screen. {}", state()));
+                self.event_notice = Some((
+                    "Still stuck. Close the game (Alt+F4) and send log.txt".to_string(),
+                    std::time::Instant::now(),
+                    20,
+                ));
+                false
+            }
+        }
     }
 
     /// The 'Mod settings' panel (menu.rs, ui.rs), every frame: the 'System list open' latch,
@@ -427,6 +524,7 @@ impl Puppet {
             self.join.on_loading();
             self.boss.on_loading();
             self.cutscene.on_loading();
+            self.stuck.on_loading();
             crate::talklock::on_loading();
             self.scaling.reset();
             // Own world (ownworld.rs): an armed restore is written during this loading screen.
@@ -440,6 +538,7 @@ impl Puppet {
             self.join.on_loading();
             self.boss.on_loading();
             self.cutscene.on_loading();
+            self.stuck.on_loading();
             crate::talklock::on_loading();
             self.scaling.reset();
         }
@@ -707,6 +806,12 @@ impl Puppet {
             wake: cmd.wake,
         });
         if boss_warped {
+            self.after_warp();
+            return;
+        }
+        // Alive but the game takes no input (stuck.rs, issue #2): let go of our holds, then warp.
+        crash::breadcrumb("stuck watchdog");
+        if self.stuck_watchdog(player, in_world_since.elapsed()) {
             self.after_warp();
             return;
         }

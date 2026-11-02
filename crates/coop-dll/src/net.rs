@@ -286,16 +286,57 @@ fn display_name(cfg: &NetSettings, api: Option<&steam::Api>) -> String {
 }
 
 /// Our uid in Hello over UDP: the same for this Windows user on this PC (a restarted game gets
-/// its slot back), never 0. A Steam session sends the SteamID64 instead.
+/// its slot back), never 0. A Steam session sends the SteamID64 instead. Under Proton every
+/// player is `steamuser` and every Steam Deck is called `steamdeck`: two Decks would share one
+/// uid, and the host gives a Hello with a known uid that player's slot (session.rs `by_uid`),
+/// so they would keep taking each other's slot. There a random id kept in the game's prefix
+/// (`wine_install_id`) is added.
 fn udp_uid() -> u64 {
     let var = |k: &str| std::env::var(k).unwrap_or_default();
-    let who = format!("{}|{}", var("COMPUTERNAME"), var("USERNAME"));
+    let mut who = format!("{}|{}", var("COMPUTERNAME"), var("USERNAME"));
+    if crate::platform::is_wine() {
+        who.push('|');
+        who.push_str(&wine_install_id());
+    }
+    uid_of(&who)
+}
+
+/// FNV-1a of `who`, never 0.
+fn uid_of(who: &str) -> u64 {
     let mut h: u64 = 0xcbf2_9ce4_8422_2325;
     for b in b"sekiro-coop-uid\0".iter().chain(who.as_bytes()) {
         h ^= *b as u64;
         h = h.wrapping_mul(0x0000_0100_0000_01b3);
     }
     h.max(1)
+}
+
+/// A random id made on the first UDP session under Wine and kept in
+/// `%LOCALAPPDATA%\sekiro-coop\udp_uid.txt` (inside the game's Proton prefix). If the file
+/// cannot be written the id still holds for this run.
+fn wine_install_id() -> String {
+    static ID: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    ID.get_or_init(|| {
+        let base = std::env::var_os("LOCALAPPDATA").map(std::path::PathBuf::from).unwrap_or_else(std::env::temp_dir);
+        let path = base.join("sekiro-coop").join("udp_uid.txt");
+        if let Ok(s) = fs::read_to_string(&path)
+            && !s.trim().is_empty()
+        {
+            return s.trim().to_owned();
+        }
+        use std::hash::{BuildHasher, Hasher};
+        // RandomState's keys come from the OS random generator.
+        let mut h = std::collections::hash_map::RandomState::new().build_hasher();
+        h.write_u128(std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map(|d| d.as_nanos()).unwrap_or(0));
+        h.write_u32(std::process::id());
+        let id = format!("{:016x}", h.finish());
+        if let Some(dir) = path.parent() {
+            let _ = fs::create_dir_all(dir);
+        }
+        let _ = fs::write(&path, &id);
+        id
+    })
+    .clone()
 }
 
 /// A UDP session on `bind`, with the echo peers' queues beside the socket when `hub` is set.
@@ -1745,6 +1786,18 @@ mod tests {
 
     fn snap(hp: i32, hidden: bool) -> Snapshot {
         Snapshot { hp, hidden, pos: [1.0, 2.0, 3.0], ..Default::default() }
+    }
+
+    #[test]
+    fn two_steam_decks_get_different_udp_uids() {
+        // Proton: same computer and user name on every Deck, only the install id differs.
+        let a = uid_of("STEAMDECK|steamuser|0123456789abcdef");
+        let b = uid_of("STEAMDECK|steamuser|fedcba9876543210");
+        assert_ne!(a, b);
+        assert_ne!(a, 0);
+        assert_eq!(a, uid_of("STEAMDECK|steamuser|0123456789abcdef"));
+        // Windows keeps the 1.0.7 value (FNV-1a of the same input).
+        assert_eq!(uid_of("PC|user"), 0x3712_7ef1_72e5_fb6f);
     }
 
     #[test]

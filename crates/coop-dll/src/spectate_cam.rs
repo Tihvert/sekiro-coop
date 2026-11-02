@@ -274,6 +274,23 @@ pub(crate) fn restore_now() -> bool {
     wrote
 }
 
+/// The free-cam switch `+0xE0` of the chain's GameRend now (None = no GameRend).
+pub(crate) fn free_cam_now() -> Option<i32> {
+    chain_game_rend().and_then(|r| read::<i32>(r + REND_FREE_CAM))
+}
+
+/// stuck.rs: the free-cam switch is on while we neither want nor hold it (a retail game never
+/// turns it on itself): written back to 0. Returns the value it had when it wrote.
+pub(crate) fn clear_stray_free_cam() -> Option<i32> {
+    let s = SHARED.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    if s.want || s.on != 0 {
+        return None;
+    }
+    let rend = chain_game_rend()?;
+    let v = read::<i32>(rend + REND_FREE_CAM)?;
+    (v != 0 && write(rend + REND_FREE_CAM, 0i32)).then_some(v)
+}
+
 /// Which way an `angle` (physics yaw, radians) points in the xz plane, learned
 /// like enemies.rs `Facing`: while a character runs, its movement direction is
 /// scored against the 8 candidate mappings.

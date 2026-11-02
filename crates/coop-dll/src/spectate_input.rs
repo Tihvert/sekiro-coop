@@ -243,7 +243,7 @@ fn xinput() -> Option<XInputGetState> {
 }
 
 /// The game window has the keyboard focus (our process owns the foreground window).
-fn game_focused() -> bool {
+pub(crate) fn game_focused() -> bool {
     let hwnd = unsafe { GetForegroundWindow() };
     if hwnd.is_null() {
         return false;
