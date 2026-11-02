@@ -134,6 +134,11 @@ pub fn compare(ours: &Info, theirs: &Info) -> Vec<Finding> {
     }
     if differs("proto") {
         out.push(Finding { log: format!("protocol version differs: {}", pair("proto")), notice: Some("Different co-op mod versions: update both.".into()) });
+    } else if let Some(v) = mod_version_differs(ours, theirs) {
+        // 1.0.5-1.0.8 share protocol 14 and connect without a word, but fixes (boss scaling
+        // 1.0.6, doors 1.0.8) only work on the machine that has them (a player's 1.0.7 log:
+        // miniboss 1110504 1874 HP here, 1249 on the host, never died there).
+        out.push(Finding { log: format!("mod version differs: {v}"), notice: Some(format!("Different co-op mod versions ({v}): update both.")) });
     }
     let native = |i: &Info| i.get("native_session").cloned();
     if differs("native_session") || (native(ours).as_deref() == Some("1") && differs("native_stage")) {
@@ -163,6 +168,14 @@ pub fn compare(ours: &Info, theirs: &Info) -> Vec<Finding> {
 }
 
 /// NG cycle out of an [`Info`] (`ng`, clamped 0..7; `?` or missing = unknown).
+/// "you X, companion Y" when the mod versions differ. A build before `ver` was sent
+/// (1.0.8 and older) does not send it: that alone tells the companion is older.
+fn mod_version_differs(ours: &Info, theirs: &Info) -> Option<String> {
+    let mine = ours.get("ver")?;
+    let other = theirs.get("ver").map_or("1.0.8 or older", |s| s.as_str());
+    (mine != other).then(|| format!("you {mine}, companion {other}"))
+}
+
 fn cycle_of(i: &Info) -> Option<u32> {
     i.get("ng").and_then(|v| v.parse().ok())
 }
@@ -179,6 +192,7 @@ fn gather(is_host: bool) -> Info {
     };
     put("role", if is_host { "host" } else { "client" }.into());
     put("proto", coop_net::protocol::VERSION.to_string());
+    put("ver", crate::ui::MOD_VERSION.to_string());
     let raw = read_ptr(game::module_base() + GAME_DATA_MAN).and_then(|g| read::<i32>(g + GDM_CLEAR_COUNT));
     put("ng_raw", raw.map_or("?".into(), |v| v.to_string()));
     put("ng", raw.map_or("?".into(), |v| v.clamp(0, 7).to_string()));
@@ -494,6 +508,22 @@ mod tests {
         assert_eq!(cycle_of(&info(&[("ng", "3")])), Some(3));
         assert_eq!(cycle_of(&info(&[("ng", "?")])), None);
         assert_eq!(cycle_of(&info(&[])), None);
+    }
+
+    #[test]
+    fn mod_version_mismatch_warns_even_on_the_same_protocol() {
+        let a = info(&[("proto", "14"), ("ver", "1.0.9-beta")]);
+        assert!(compare(&a, &a).is_empty());
+        let f = compare(&a, &info(&[("proto", "14"), ("ver", "1.0.7-beta")]));
+        assert_eq!(f.len(), 1, "{f:?}");
+        assert_eq!(f[0].notice.as_deref(), Some("Different co-op mod versions (you 1.0.9-beta, companion 1.0.7-beta): update both."));
+        // An older build sends no `ver`.
+        let f = compare(&a, &info(&[("proto", "14")]));
+        assert!(f[0].log.contains("companion 1.0.8 or older"), "{f:?}");
+        // We are the old one: nothing to say from our side (theirs warns).
+        assert!(compare(&info(&[("proto", "14")]), &a).is_empty());
+        // A protocol difference keeps its own single notice.
+        assert_eq!(compare(&a, &info(&[("proto", "13"), ("ver", "1.0.4-beta")])).len(), 1);
     }
 
     #[test]

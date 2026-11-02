@@ -431,6 +431,30 @@ pub fn tick(net: &mut Net, peers: &PeerSet, now: Instant) {
             .zip(tm)
             .map(|(id, tm)| key_of(tm, id))
     };
+    // Every player log so far (1.0-1.0.7, 108 conversations npcintro saw) has a talk menu up
+    // and no key: the press fields never named the NPC, so no lock was ever sent. Log what
+    // the manager holds then, to find the right field (once per menu, up to 10 a run).
+    static MENU_SEEN: AtomicBool = AtomicBool::new(false);
+    if idle {
+        MENU_SEEN.store(false, Ordering::Relaxed);
+    } else if !have_mine && key.is_none() && !MENU_SEEN.swap(true, Ordering::Relaxed) {
+        static UNNAMED: AtomicUsize = AtomicUsize::new(0);
+        if UNNAMED.fetch_add(1, Ordering::Relaxed) < 10
+            && let Some(t) = tm
+        {
+            let r = |o: usize| read::<i32>(t + o).map_or("?".into(), |v| format!("{v:#x}"));
+            log::line(&format!(
+                "talklock: talk menu up but no talk press seen: +20E0 {} +20E4 {} +20E8 {} +20EC {} +20F0 {} +20F4 {} +20F8 {}",
+                r(0x20E0),
+                r(0x20E4),
+                r(0x20E8),
+                r(0x20EC),
+                r(0x20F0),
+                r(0x20F4),
+                r(0x20F8)
+            ));
+        }
+    }
     let act = with(|s| {
         s.client = client;
         s.names = peers.iter().map(|p| (p.id, p.name.clone())).collect();
