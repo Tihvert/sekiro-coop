@@ -20,7 +20,7 @@ Co-op for Sekiro, Elden Ring Seamless Co-op style. 2-6 players in the same world
 
 I already beat the game so my motivation to keep building this dropped a lot. I might still come back to it at some point, no promises. That's why the whole thing is open source, including all my debugging notes and tools. If you want to keep going with it, fork it, fix stuff, send PRs, make your own version, go for it.
 
-Full honesty: this was made with a LOT of help from AI (mostly Claude). I can read code a bit but I didn't write most of it by hand. My part was the idea, testing it in game over and over, reading logs and telling the AI what's broken.
+Full honesty: this was made with a LOT of help from AI (mostly Claude). I can read code a bit but I didn't write most of it by hand. My part was the idea, testing it in game over and over, reading logs and telling the AI what's broken. The co-op item icons were made with AI too.
 
 [b]GitHub (source, full readme, bug reports):[/b] [url=https://github.com/Tihvert/sekiro-coop]github.com/Tihvert/sekiro-coop[/url]
 If you're enjoying this and want to support me: [url=https://tihvert.xyz/donate/]tihvert.xyz/donate[/url], or straight to [url=https://ko-fi.com/tihvert]Ko-fi[/url] (card, PayPal, Apple/Google Pay). Totally optional.
@@ -80,7 +80,7 @@ Sekiro doesn't have any online mode or anti-cheat, so there's nothing to get ban
 [size=5][b]Installation[/b][/size]
 You need:
 [list]
-[*] Sekiro on Steam, version [b]1.06[/b] (the last patch, normal unmodded exe)
+[*] Sekiro on Steam, version [b]1.06[/b] (the last patch, normal unmodded exe). Only the Steam version is supported. Cracked or non-Steam copies aren't, and I can't help with those (Nexus rules).
 [*] [url=https://github.com/garyttierney/me3/releases]me3 mod loader[/url] (Windows installer, default options are fine)
 [*] Windows
 [/list]
@@ -116,6 +116,7 @@ Connection is Steam by default and falls back to direct UDP after 15 s. For UDP 
 [b]Game doesn't start:[/b]
 - Is Steam running? Start it before double-clicking sekiro-coop.me3.
 - Is me3 installed? Without it, double-clicking sekiro-coop.me3 does nothing (Windows asks which app to use).
+- me3 window flashes and closes right away? Sekiro isn't installed through Steam, or it's not the Steam version.
 - Verify game files in Steam and make sure no other online mods are left in the game folder.
 
 [b]Can't connect:[/b]
@@ -149,7 +150,7 @@ A) Maybe. No promises. That's why the source is out there.
 [*] Gary Tierney and contributors for me3
 [*] veeenu for hudhook
 [*] LukeYui's Elden Ring Seamless Co-op and the DS3 seamless mods for the inspiration
-[*] Claude (Anthropic) for writing most of the code with me
+[*] Claude (Anthropic) for writing most of the code with me, the co-op item icons were made with GPT image generation
 [/list]
 
 Unofficial fan mod, not affiliated with FromSoftware, Activision or Valve. Use at your own risk.

@@ -16,7 +16,7 @@ Co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring Seamless 
 
 I already beat the game so my motivation to keep building this dropped a lot. I might still come back to it at some point, no promises. That's why it's open source now: if you want to keep going with it, fork it, fix stuff, send PRs, make your own version, whatever. Everything I have that's useful for debugging is in here too (see [For devs](#for-devs)).
 
-Also, full honesty: this was made with a LOT of help from AI (mostly Claude). I can read code a bit but I didn't write most of this by hand. My part was the idea, testing it in game over and over, reading logs and telling the AI what's broken. So if some code looks weird, that's why.
+Also, full honesty: this was made with a LOT of help from AI (mostly Claude). I can read code a bit but I didn't write most of this by hand. My part was the idea, testing it in game over and over, reading logs and telling the AI what's broken. So if some code looks weird, that's why. The co-op item icons were made with AI too.
 
 ![co-op settings in the game's own options menu](media/coop-settings.jpg)
 
@@ -54,7 +54,7 @@ Also, full honesty: this was made with a LOT of help from AI (mostly Claude). I 
 
 You need:
 
-- Sekiro on **Steam, version 1.06** (the last patch, normal unmodded exe)
+- Sekiro on **Steam, version 1.06** (the last patch, normal unmodded exe). Only the Steam version is supported. Cracked or non-Steam copies aren't, and I can't help with those (Nexus rules).
 - [me3 mod loader](https://github.com/garyttierney/me3/releases) (Windows installer, default options are fine)
 - Windows, or Linux / Steam Deck with Proton (not tested yet, see below)
 
@@ -112,6 +112,7 @@ Full guide with Steam Deck Game Mode, Flatpak Steam, firewall and "it doesn't st
 
 ## When something breaks
 
+- Game doesn't start, the me3 window flashes and closes right away: Sekiro isn't installed through Steam, or it's not the Steam version. Start Steam first and check that me3 is installed.
 - The log is at `%LOCALAPPDATA%\sekiro-coop\log.txt`.
 - Press **F11** (or Back/Share on a controller) right when a bug happens. That puts a marker with the time in the log and dumps a bunch of extra state, so it's way easier to find later.
 - Open an issue on GitHub with what happened, around what time, and both players' logs if you can.
@@ -154,7 +155,7 @@ The `.cmd` files assume the default VS 2022 Build Tools path, edit them if yours
 - [me3](https://github.com/garyttierney/me3) by Gary Tierney and contributors, the mod loader.
 - [hudhook](https://github.com/veeenu/hudhook) by veeenu, for the in-game overlay.
 - Elden Ring Seamless Co-op by LukeYui and the DS3 seamless mods, the inspiration.
-- Built with a lot of help from Claude (Anthropic).
+- Built with a lot of help from Claude (Anthropic). The co-op item icons were made with GPT image generation.
 
 ## Support
 
