@@ -82,8 +82,30 @@ Steps:
 ### Connecting
 
 - Default is Steam, and if that doesn't connect in 15 s it switches to direct UDP.
-- Direct UDP: the host needs port **28100 UDP** open or forwarded (the mod tries UPnP). The host's address gets written to `udp_join_code.txt`. Joiners put it in `udp_host_address` and set `transport = udp`.
+- Steam lobbies only work when Sekiro is owned on that Steam account and Steam is online. If Steam doesn't work for you, use direct UDP.
 - The password only gets sent as a hash.
+
+#### Direct UDP, step by step
+
+All of this is in `[ADVANCED]` in `sekiro_coop_settings.ini` (next to `sekiro_coop.dll`).
+
+**Host:**
+
+1. Set `transport = udp` (or leave `auto`, then it switches to UDP after 15 s).
+2. Load your save and use the **Kindred Bell**. The address only shows up after the Bell, not at game start.
+3. The mod tries to open port **28100 UDP** on your router (UPnP). If that works, the top left says `UDP host, join code 1.2.3.4:28100` and the same code is saved to `udp_join_code.txt` next to the ini. The file gets deleted again when the session closes.
+4. No `udp_join_code.txt` and the top left says `UPnP failed`? Then your router has UPnP off. Forward **UDP 28100** to your PC by hand in the router settings, and get your public IP from a site like whatismyip.com. Your join code is then `<that ip>:28100`.
+5. Send the join code to everyone joining.
+
+**Joiners:**
+
+1. Set `transport = udp` and `udp_host_address = <host's join code>`, for example `udp_host_address = 1.2.3.4:28100` (just the IP works too, port 28100 is the default).
+2. Same `password` as the host.
+3. Load your save and use the **Kindred Charm**.
+
+Only the host needs an open port. All joiners use the same address. If you change `udp_port`, everyone has to use the same port.
+
+**Can't open ports** (or the log says the router has no public IP, which happens with some mobile and fiber connections)? Use a virtual LAN like Radmin VPN, ZeroTier or Tailscale. Everybody joins the same network, and joiners put the host's VPN IP (shown in the VPN app) in `udp_host_address`. No port forwarding needed then.
 
 ### Settings
 

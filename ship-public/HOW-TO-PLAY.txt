@@ -45,10 +45,28 @@ report and send log.txt and log.old.txt.
 CONNECTION
 Steam by default, falls back to direct UDP after 15 s. Steam lobbies only work
 when Sekiro is owned on that Steam account and Steam is online; otherwise use UDP.
-For UDP the host needs port 28100 UDP open (UPnP is tried). Host address is in
-udp_join_code.txt, joiners put it in udp_host_address and set transport = udp.
-Can't open ports? A virtual LAN (Radmin VPN, ZeroTier) works: use the host's
-VPN IP as udp_host_address.
+
+DIRECT UDP (in [ADVANCED] in sekiro_coop_settings.ini)
+Host:
+1. transport = udp (or auto, then it switches after 15 s).
+2. Load your save and use the Kindred Bell. The address only shows up after
+   the Bell, not at game start.
+3. The mod tries to open port 28100 UDP on your router (UPnP). If it works,
+   the top left shows "join code 1.2.3.4:28100" and the same code is saved
+   to udp_join_code.txt next to the ini (deleted when the session closes).
+4. No udp_join_code.txt and "UPnP failed" in the top left? Forward UDP 28100
+   to your PC by hand in the router, and get your public IP from a site like
+   whatismyip.com. Your join code is <that ip>:28100.
+5. Send the join code to everyone joining.
+Joiners:
+1. transport = udp and udp_host_address = <host's join code>,
+   e.g. udp_host_address = 1.2.3.4:28100
+2. Same password as the host.
+3. Load your save and use the Kindred Charm.
+Only the host needs an open port. All joiners use the same address.
+Can't open ports? A virtual LAN (Radmin VPN, ZeroTier, Tailscale) works:
+everyone joins the same network and joiners use the host's VPN IP as
+udp_host_address. No port forwarding needed then.
 
 SAVES
 Co-op uses its own save S0000.coop.sl2, your normal save isn't touched.

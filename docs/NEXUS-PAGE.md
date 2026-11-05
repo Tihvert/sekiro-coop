@@ -109,7 +109,30 @@ Other mods haven't been tested with this. Stuff that doesn't touch multiplayer o
 [/list]
 
 Settings: edit the ini or use Options > Co-op Settings in game.
-Connection is Steam by default and falls back to direct UDP after 15 s. For UDP the host needs port 28100 UDP open (UPnP is tried), the address is in udp_join_code.txt.
+Connection is Steam by default and falls back to direct UDP after 15 s. Steam lobbies only work when Sekiro is owned on that Steam account and Steam is online. Otherwise use direct UDP:
+
+
+[size=5][b]Direct UDP[/b][/size]
+Everything here is in [ADVANCED] in sekiro_coop_settings.ini (next to sekiro_coop.dll).
+
+[b]Host:[/b]
+[list=1]
+[*] Set [b]transport = udp[/b] (or leave auto, then it switches to UDP after 15 s).
+[*] Load your save and use the [b]Kindred Bell[/b]. The address only shows up after the Bell, not at game start.
+[*] The mod tries to open port [b]28100 UDP[/b] on your router (UPnP). If that works, the top left says "join code 1.2.3.4:28100" and the same code is saved to [b]udp_join_code.txt[/b] next to the ini. The file is deleted again when the session closes.
+[*] No udp_join_code.txt and the top left says "UPnP failed"? Your router has UPnP off. Forward [b]UDP 28100[/b] to your PC by hand in the router settings, and get your public IP from a site like whatismyip.com. Your join code is then <that ip>:28100.
+[*] Send the join code to everyone joining.
+[/list]
+
+[b]Joiners:[/b]
+[list=1]
+[*] Set [b]transport = udp[/b] and [b]udp_host_address = <host's join code>[/b], for example udp_host_address = 1.2.3.4:28100
+[*] Same password as the host.
+[*] Load your save and use the [b]Kindred Charm[/b].
+[/list]
+
+Only the host needs an open port. All joiners use the same address.
+[b]Can't open ports?[/b] Use a virtual LAN like Radmin VPN, ZeroTier or Tailscale. Everyone joins the same network and joiners put the host's VPN IP in udp_host_address. No port forwarding needed then.
 
 
 [size=5][b]Troubleshooting[/b][/size]
@@ -121,7 +144,8 @@ Connection is Steam by default and falls back to direct UDP after 15 s. For UDP 
 
 [b]Can't connect:[/b]
 - Same password and same mod version on everyone.
-- For UDP the host's port 28100 needs to be open.
+- For UDP the host's port 28100 UDP needs to be open (see Direct UDP above), or use Radmin VPN / ZeroTier / Tailscale.
+- No udp_join_code.txt? It only shows up after the host uses the Kindred Bell, and only if UPnP worked. Check the top left text.
 
 [b]Something broke in game:[/b]
 - The log is at %LOCALAPPDATA%\sekiro-coop\log.txt
