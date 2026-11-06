@@ -8,7 +8,7 @@ Co-op mod for **Sekiro: Shadows Die Twice**. Kinda like the Elden Ring Seamless 
 
 **Download:** [Nexus Mods](https://www.nexusmods.com/sekiro/mods/2944) or [GitHub Releases](https://github.com/Tihvert/sekiro-coop/releases).
 
-**Discord:** [discord.gg/PbAtYhSJFu](https://discord.gg/PbAtYhSJFu) for help, bug reports and finding people to play with.
+**Discord:** [discord.gg/HXvzfnpsC4](https://discord.gg/HXvzfnpsC4) for help, bug reports and finding people to play with.
 
 ## Heads up, read this first
 
