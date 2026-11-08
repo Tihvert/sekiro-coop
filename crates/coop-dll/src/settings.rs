@@ -357,6 +357,7 @@ fn apply(ini: &Ini, warn: &mut Vec<String>) {
     crate::ownworld::OWN_WORLD_MODE.store(crate::ownworld::parse_mode(&ini.text("own_world_mode"), warn), Relaxed);
     tuning::SYNC_POSTURE.store(ini.flag("sync_posture", true, warn), Relaxed);
     crate::keyitems::ENABLED.store(ini.flag("share_key_items", true, warn), Relaxed);
+    crate::keyitems::SHARE_PICKUPS.store(ini.flag("share_pickups", true, warn), Relaxed);
     crate::bossgate::ENABLED.store(ini.flag("boss_start_gate", true, warn), Relaxed);
     crate::dialog::CONFIRM_ITEMS.store(ini.flag("confirm_items", true, warn), Relaxed);
     tuning::DIALOG_DEFAULT_YES.store(ini.flag("dialog_default_yes", true, warn), Relaxed);
@@ -582,8 +583,13 @@ sync_posture = 1
 ; 1 = items an NPC or an event gives you (Healing Gourd, Mortal Blade, esoteric texts,
 ;     prosthetic tools, Prayer Beads...) are given to the friend too, and on connecting
 ;     both of you are told which key items the other lacks. World pickups and shops stay
-;     your own. 0 = off.
+;     your own (see share_pickups). 0 = off.
 share_key_items = 1
+; 1 = an item one of you picks up from the map while connected (treasure, chests, items
+;     on corpses) is given to the other too, and the other can no longer pick it up there.
+;     Both players need 1. Pickups made alone or before the session are not shared.
+;     Shops stay your own. 0 = each player picks up their own copy.
+share_pickups = 1
 ; 1 = a boss fight the friend starts far from you (other area or over 60 m) does not
 ;     start in your world until you come near it; the kill still counts for you. 0 = off.
 boss_start_gate = 1

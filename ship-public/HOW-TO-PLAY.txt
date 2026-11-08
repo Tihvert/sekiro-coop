@@ -68,6 +68,15 @@ Can't open ports? A virtual LAN (Radmin VPN, ZeroTier, Tailscale) works:
 everyone joins the same network and joiners use the host's VPN IP as
 udp_host_address. No port forwarding needed then.
 
+SHARED PICKUPS (share_pickups = 1 in sekiro_coop_settings.ini, default on)
+An item one of you picks up from the map while connected (treasure, chests,
+items on corpses) is given to the other too, with the small pickup log, and
+the other can no longer pick it up there. Both players need share_pickups = 1.
+Pickups made alone or before the session stay your own; shops stay your own.
+The item disappears from the other's map at once (no glow, no prompt), and a
+second pickup of it is refused.
+Log lines start with "pickup:".
+
 SAVES
 Co-op uses its own save S0000.coop.sl2, your normal save isn't touched.
 Backups: %LOCALAPPDATA%\sekiro-coop\save-backups\
