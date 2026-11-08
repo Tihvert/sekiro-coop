@@ -178,6 +178,12 @@ pub fn commit_edge(last: u32, now: u32) -> bool {
     now == 1 && last != 1
 }
 
+/// A committed death at `dead_at` is over: that player loaded after it (`reloaded_at`:
+/// our death reload, or the peer's last hidden snapshot) and is alive again now.
+pub fn death_over(dead_at: Instant, reloaded_at: Option<Instant>, alive: bool) -> bool {
+    alive && reloaded_at.is_some_and(|t| t > dead_at)
+}
+
 /// Boss records are restored only on a load that follows a death of ours, and only for the
 /// load's initial set: `first_seen_gap` = time since the first member of its encounter
 /// was seen in this load (None = this is the first).
@@ -283,6 +289,9 @@ struct State {
     our_dead_at: Option<Instant>,
     /// Each connected peer's committed death (EV_DEATH) within the wipe window.
     peer_dead_at: BTreeMap<PeerId, Instant>,
+    /// Peer deaths that are over (it reloaded and is alive again): not taken back from its
+    /// `death_at`, which stays for the whole window.
+    peer_back: BTreeMap<PeerId, Instant>,
     /// Our `DEATH_COMMITTED` last frame; committed deaths so far, and the count at the last
     /// load: a load after a new commit is a death reload (E, 7.15).
     our_committed: u32,
@@ -479,6 +488,7 @@ pub fn tick(c: Ctx) {
         if let Some(t) = p.death_at
             && now.duration_since(t) <= WIPE_WINDOW
             && st.peer_dead_at.get(&p.id).is_none_or(|f| t > *f)
+            && st.peer_back.get(&p.id).is_none_or(|b| t > *b)
         {
             st.peer_dead_at.insert(p.id, t);
         }
@@ -493,10 +503,31 @@ pub fn tick(c: Ctx) {
             st.hold_load = true;
         }
     }
+    // A death that is over (that player reloaded after it and is alive again) no longer
+    // counts: a wipe needs every player down at the same time. Checked after the wipe test,
+    // so a peer death that came in during our own death reload is still a wipe. (Live
+    // 2026-11-09, 1.0.9: the host died, reloaded and played on for 79 s; the friend's death
+    // then counted as a wipe and cleared the dead set and the boss records on both sides.)
+    if let Some(d) = st.our_dead_at
+        && death_over(d, st.death_load_at, c.player.hp().is_some_and(|h| h > 0))
+    {
+        st.our_dead_at = None;
+        log::line("persist: we are back after our death: it no longer counts for a wipe");
+    }
+    for p in c.peers.iter() {
+        if let Some(&d) = st.peer_dead_at.get(&p.id)
+            && death_over(d, p.loaded_at, p.alive())
+        {
+            st.peer_dead_at.remove(&p.id);
+            st.peer_back.insert(p.id, d);
+            log::line(&format!("persist: peer {} is back after its death: it no longer counts for a wipe", p.id.slot()));
+        }
+    }
     if st.our_dead_at.is_some_and(|x| now.duration_since(x) > WIPE_WINDOW) {
         st.our_dead_at = None;
     }
     st.peer_dead_at.retain(|_, x| now.duration_since(*x) <= WIPE_WINDOW);
+    st.peer_back.retain(|id, x| c.peers.by_id(*id).is_some() && now.duration_since(*x) <= WIPE_WINDOW);
 
     // The peers' news: dead sets merged (union), boss records at the minimum.
     while let Some((_from, d)) = c.net.take_bulk_from(BULK_PERSIST) {
@@ -720,6 +751,39 @@ fn boss_step(st: &mut State, chr: Chr, id: i32, alive: bool, lives0: i32) {
 
 #[cfg(test)]
 mod tests {
+    #[test]
+    fn a_death_is_over_once_that_player_reloaded_and_lives() {
+        use super::death_over;
+        use std::time::{Duration, Instant};
+        let died = Instant::now();
+        let s = Duration::from_secs;
+        // Still on the death screen / loading: not over.
+        assert!(!death_over(died, None, false));
+        assert!(!death_over(died, Some(died + s(5)), false));
+        // Alive but no load after the death (a stale load before it): not over.
+        assert!(!death_over(died, Some(died - s(30)), true));
+        // Reloaded after the death and alive: over.
+        assert!(death_over(died, Some(died + s(5)), true));
+    }
+
+    #[test]
+    fn a_death_after_the_other_player_came_back_is_no_wipe() {
+        // Live 2026-11-09: host died at t, reloaded at t+5 and lived; the friend died at
+        // t+81. Once the host's death is over it is dropped, so the pair is no wipe.
+        use super::{death_over, is_wipe};
+        use std::time::{Duration, Instant};
+        let t = Instant::now();
+        let s = Duration::from_secs;
+        let host_dead = Some(t);
+        let friend_dead = Some(t + s(81));
+        assert!(is_wipe(host_dead, &[friend_dead]), "the old rule: both within 90 s");
+        let host_dead = host_dead.filter(|&d| !death_over(d, Some(t + s(5)), true));
+        assert!(!is_wipe(host_dead, &[friend_dead]));
+        // Both down at the same time (the host still dead): still a wipe.
+        let host_dead = Some(t).filter(|&d| !death_over(d, None, false));
+        assert!(is_wipe(host_dead, &[friend_dead]));
+    }
+
     #[test]
     fn wipe_recent_window() {
         use super::recent_at;
